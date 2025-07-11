@@ -54,7 +54,7 @@ node:yarn:install:
 node:build:
   extends: .node:build
   stage: 🛠️ Build
-  needs: ['node:install']
+  needs: ['node:yarn:install']
   artifacts:
     paths:
       - .env
@@ -72,7 +72,7 @@ node:build:
 node:test:
   extends: .node:test
   stage: 🧪 Test
-  needs: ['node:install']
+  needs: ['node:yarn:install']
   only:
     - main
 
