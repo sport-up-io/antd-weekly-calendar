@@ -8,11 +8,6 @@ include:
   - project: sport-up-group/sportup-templates
     ref: main
     file: main.yml
-  # Automatic Config Environment
-  # Configue automaticly the environment from .env on develop, staging or tags
-  - project: sport-up-group/sportup-templates
-    ref: main
-    file: config-env.yml
 
 stages:
   - ⚙️ Config
