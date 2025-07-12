@@ -1,6 +1,6 @@
 {
   "name": "@sportup/antd-weekly-calendar",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "license": "MIT",
   "main": "dist/antd-weekly-calendar.umd.js",
   "module": "dist/antd-weekly-calendar.es.js",
@@ -54,10 +54,11 @@
     }
   ],
   "dependencies": {
-    "antd": "^5.26.4",
+    "antd": "^5.20.3",
     "date-fns": "^3.6.0",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
+    "less": "^4.2.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "tslib": "^2.6.3"
   },
   "devDependencies": {
@@ -87,7 +88,6 @@
     "husky": "^9.1.4",
     "identity-obj-proxy": "^3.0.0",
     "jsdom": "^24.1.1",
-    "less": "^4.3.0",
     "size-limit": "^6.0.0",
     "storybook": "^8.2.9",
     "typescript": "^5.5.4",
