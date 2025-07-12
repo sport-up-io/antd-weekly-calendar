@@ -15,11 +15,13 @@ export default defineConfig({
             formats: ['es', 'umd'],  // Library output formats
         },
         rollupOptions: {
-            external: ['react', 'react-dom'],  // Peer dependencies
+            external: ['react', 'react-dom', 'antd', '@ant-design/cssinjs'],  // Peer dependencies
             output: {
                 globals: {
                     react: 'React',
                     'react-dom': 'ReactDOM',
+                        antd: 'antd',
+    '@ant-design/cssinjs': 'cssinjs'
                 },
             },
         },
