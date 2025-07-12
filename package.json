@@ -22,6 +22,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build ",
+    "build:watch": "tsc && vite build --watch",
     "serve": "vite preview",
     "test": "vitest",
     "lint": "eslint . --ext .ts,.tsx",
