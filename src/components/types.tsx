@@ -1,12 +1,11 @@
 export interface GenericEvent {
-  eventId: string
-  startTime: Date
-  endTime: Date
-  title?: string | undefined | null
-  location?: string | undefined | null
-  allDay?: boolean
-  textColor?: string | undefined
-  backgroundColor?: string | undefined
+  eventId: string;
+  startTime: Date;
+  endTime: Date;
+  title?: string | undefined | null;
+  location?: string | undefined | null;
+  textColor?: string | undefined;
+  backgroundColor?: string | undefined;
 }
 
 export interface BaseCalendarProps<T extends GenericEvent = GenericEvent> {
@@ -15,6 +14,7 @@ export interface BaseCalendarProps<T extends GenericEvent = GenericEvent> {
   weekends: boolean;
   eventTextColor?: string;
   eventBackgroundColor?: string;
+  headerSticky?: boolean;
 }
 
 export interface CalendarContainerProps<T extends GenericEvent = GenericEvent>
@@ -35,46 +35,53 @@ export interface CalendarBodyProps<T extends GenericEvent = GenericEvent>
 }
 
 export type WeekObject<T> = {
-  sunday: T[]
-  monday: T[]
-  tuesday: T[]
-  wednesday: T[]
-  thursday: T[]
-  friday: T[]
-  saturday: T[]
-}
+  sunday: T[];
+  monday: T[];
+  tuesday: T[];
+  wednesday: T[];
+  thursday: T[];
+  friday: T[];
+  saturday: T[];
+};
 
 export interface EventBlockProps<T> {
-  event: T
-  index: number
-  hour: Date
-  events: number
-  onEventClick?: (e: T) => any | undefined
+  event: T;
+  index: number;
+  hour: Date;
+  events: number;
+  onEventClick?: (e: T) => any | undefined;
 }
 
-export type ColumnNode<T> = T[] | string
+export type ColumnNode<T> = T[] | string;
 
 export type EventsObject<T> = {
-  id: number
-  hourObject: Date
-  hour: string
-  Monday: T[] | undefined
-  Tuesday: T[] | undefined
-  Wednesday: T[] | undefined
-  Thursday: T[] | undefined
-  Friday: T[] | undefined
-  Saturday: T[] | undefined
-  Sunday: T[] | undefined
-}
+  id: number;
+  hourObject: Date;
+  hour: string;
+  Monday: T[] | undefined;
+  Tuesday: T[] | undefined;
+  Wednesday: T[] | undefined;
+  Thursday: T[] | undefined;
+  Friday: T[] | undefined;
+  Saturday: T[] | undefined;
+  Sunday: T[] | undefined;
+};
 
 export interface WeekDateRange {
-  startDate: Date
-  endDate: Date
+  startDate: Date;
+  endDate: Date;
 }
 
-export type DayName = 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday'
+export type DayName =
+  | 'sunday'
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday';
 
 export interface CalendarHeaderProps {
-  startWeek: Date
-  setStartWeek: React.Dispatch<React.SetStateAction<Date>>
+  startWeek: Date;
+  setStartWeek: React.Dispatch<React.SetStateAction<Date>>;
 }

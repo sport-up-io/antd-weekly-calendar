@@ -13,6 +13,7 @@ export function WeeklyCalendar<T extends GenericEvent>({
   onSelectDate,
   weekends = false,
   currentDate,
+  headerSticky = false,
   value
 }: CalendarContainerProps<T>) {
   const dateToUse = currentDate || value;
@@ -43,6 +44,7 @@ export function WeeklyCalendar<T extends GenericEvent>({
         getDayEvents={weekObject}
         onEventClick={onEventClick as (e: GenericEvent) => any}
         weekends={weekends}
+        headerSticky={headerSticky}
       />
     </Card>
   );

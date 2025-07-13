@@ -64,6 +64,7 @@ describe('Calendar Component', () => {
         getDayEvents: mockGetDayEvents,
         onEventClick: vi.fn(),
         weekends: false,
+        headerSticky: false,
     };
 
     it('renders without errors', () => {

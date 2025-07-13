@@ -1,25 +1,24 @@
 import {
   add,
-  isSameHour,
-  isSameDay,
   addHours,
-  eachDayOfInterval,
-  startOfDay,
-  getDay,
-  isSameWeek,
-  startOfWeek,
-  format,
   differenceInMinutes,
+  eachDayOfInterval,
+  format,
+  getDay,
+  isSameDay,
+  isSameHour,
+  isSameWeek,
+  startOfDay,
+  startOfWeek,
 } from 'date-fns';
 
 import {
-  WeekObject,
-  EventsObject,
-  WeekDateRange,
-  GenericEvent,
   DayName,
+  EventsObject,
+  GenericEvent,
+  WeekDateRange,
+  WeekObject,
 } from './types';
-
 
 /**
  * Converts an array of events into a structured object representing the events of a specific week.
@@ -39,7 +38,6 @@ export const daysToWeekObject = <T extends GenericEvent>(
   events: T[],
   startWeek: Date
 ) => {
-
   const dayNames: DayName[] = [
     'sunday',
     'monday',
@@ -117,67 +115,52 @@ export const getDayHoursEvents = <T extends GenericEvent>(
   weekRange: WeekDateRange,
   weekObject: WeekObject<T> | undefined
 ) => {
-  const ALL_DAY_EVENT = 0;
-  const ROW_AMOUNT = 26
+  const ROW_AMOUNT = 24;
 
   const events: EventsObject<T>[] = [];
   for (let i = 0; i < ROW_AMOUNT; i++) {
-    const startDate = startOfDay(startOfWeek(weekRange.startDate))
+    const startDate = startOfDay(startOfWeek(weekRange.startDate));
     const hour = addHours(startDate, i);
 
     events.push({
       id: i,
       hourObject: hour,
-      hour: i != ALL_DAY_EVENT ? format(hour, 'hh a') : 'all-day',
+      hour: format(hour, 'hh a'),
       Sunday:
         weekObject?.sunday &&
-        weekObject?.sunday.filter(e => {
-
-          return e.allDay
-            ? i === ALL_DAY_EVENT
-            : isSameHour(e.startTime, add(hour, { days: 0 }));
+        weekObject?.sunday.filter((e) => {
+          return isSameHour(e.startTime, add(hour, { days: 0 }));
         }),
       Monday:
         weekObject?.monday &&
-        weekObject?.monday.filter(e => {
-          return e.allDay ? i === ALL_DAY_EVENT : isSameHour(e.startTime, add(hour, { days: 1 }));
+        weekObject?.monday.filter((e) => {
+          return isSameHour(e.startTime, add(hour, { days: 1 }));
         }),
       Tuesday:
         weekObject?.tuesday &&
-        weekObject?.tuesday.filter(e => {
-          return e.allDay
-            ? i === ALL_DAY_EVENT
-            : isSameHour(e.startTime, add(hour, { days: 2 }));
+        weekObject?.tuesday.filter((e) => {
+          return isSameHour(e.startTime, add(hour, { days: 2 }));
         }),
       Wednesday:
         weekObject?.wednesday &&
-        weekObject?.wednesday.filter(e => {
-          return e.allDay
-            ? i === ALL_DAY_EVENT
-            : isSameHour(e.startTime, add(hour, { days: 3 }));
+        weekObject?.wednesday.filter((e) => {
+          return isSameHour(e.startTime, add(hour, { days: 3 }));
         }),
       Thursday:
         weekObject?.thursday &&
-        weekObject?.thursday.filter(e => {
-          return e.allDay
-            ? i === ALL_DAY_EVENT
-            : isSameHour(e.startTime, add(hour, { days: 4 }));
+        weekObject?.thursday.filter((e) => {
+          return isSameHour(e.startTime, add(hour, { days: 4 }));
         }),
       Friday:
         weekObject?.friday &&
-        weekObject?.friday.filter(e => {
-          return e.allDay
-            ? i === ALL_DAY_EVENT
-            : isSameHour(e.startTime, add(hour, { days: 5 }));
+        weekObject?.friday.filter((e) => {
+          return isSameHour(e.startTime, add(hour, { days: 5 }));
         }),
       Saturday:
         weekObject?.saturday &&
-        weekObject?.saturday.filter(e => {
-          return e.allDay
-            ? i === ALL_DAY_EVENT
-            : isSameHour(e.startTime, add(hour, { days: 6 }));
-        })
-
+        weekObject?.saturday.filter((e) => {
+          return isSameHour(e.startTime, add(hour, { days: 6 }));
+        }),
     });
   }
   return events;
@@ -208,17 +191,38 @@ export const sizeEventBox = <T extends GenericEvent>(event: T, hour: Date) => {
 
 /**
  * calculateScrollOffset - A  to calculate the scroll offset needed to bring a specific row into view.
- * 
+ *
  * @param {HTMLDivElement} container - The container element that is scrollable.
  * @param {HTMLDivElement} row - The row element that needs to be scrolled into view.
  * @returns {number} - The calculated scroll offset value.
- * 
+ *
  * This function calculates how much the container needs to be scrolled to bring the target row into view.
  * It determines the difference between the container's top position and the row's top position, and adjusts
  * the scroll position accordingly, with an extra offset to position the row appropriately in the view.
  */
-export function calculateScrollOffset(container: HTMLDivElement, row: HTMLDivElement): number {
+export function calculateScrollOffset(
+  container: HTMLDivElement,
+  row: HTMLDivElement
+): number {
   const containerTop = container.getBoundingClientRect().top;
   const rowTop = row.getBoundingClientRect().top;
-  return rowTop - containerTop  // Adjust to scroll just enough to show the row
+  return rowTop - containerTop; // Adjust to scroll just enough to show the row
+}
+
+/**
+ * Determines if the provided `hourObject` represents the same hour as the `currentDate` within the same week.
+ *
+ * @param hourObject - The date object to compare, or `undefined`.
+ * @param currentDate - The current date to compare against.
+ * @returns `true` if `hourObject` is defined and represents the same hour within the same week as `currentDate`; otherwise, `false`.
+ */
+export function isCurentHour(
+  hourObject: Date | undefined,
+  currentDate: Date
+): boolean {
+  if (!hourObject) return false;
+  return (
+    hourObject.getHours() === currentDate.getHours() &&
+    isSameWeek(hourObject, currentDate)
+  );
 }

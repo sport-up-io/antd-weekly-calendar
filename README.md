@@ -59,6 +59,7 @@ function MyCalendar() {
 | onEventClick | `(event) => void`        |   -    | Callback for when an event is being clicked                                       |
 | onSelectDate |  `(date) => void`     | -| Callback for when a date is selected                   |
 | weekends?     | `boolean` | `false`| Display weekend on the calendar    |
+| headerSticky? | `boolean` | `false`| Make the header sticky             |    
 
 ### Event Api
 
@@ -70,7 +71,7 @@ function MyCalendar() {
 | endTime | `Date`   | -     | event end time |
 | title | `string`  | - | event title           |
 | location?  |    `string`    | -           | event location |
-| allDay?  |   `boolean`   | `false`   | is the event a full day event?                                                          |
+event?                                                          |
 | textColor? |  `string`       |       `white` | You can use any of the CSS color formats such `#f00`, `#ff0000`, `rgb(255,0,0)`, or `red`.|
 | backgroundColor?| `string`   | `#36CFC9`     | You can use any of the CSS color formats such `#f00`, `#ff0000`, `rgb(255,0,0)`, or `red`.|
 
