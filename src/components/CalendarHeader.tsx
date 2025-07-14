@@ -1,14 +1,14 @@
-import React from 'react';
-import { Button, Row, Col, Tag, Typography } from 'antd';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { Button, Col, Row, Tag } from 'antd';
 import {
   addWeeks,
-  startOfWeek,
   endOfWeek,
-  getMonth,
   format,
+  getMonth,
   getWeek,
+  startOfWeek,
 } from 'date-fns';
+import React from 'react';
 
 import DatePicker from './DatePicker';
 
@@ -29,22 +29,22 @@ const MonthName: React.FunctionComponent<MonthNameProps> = ({ startWeek }) => {
     return format(startWeek, 'MMM') + '-' + format(endOfWeekDate, 'MMM');
   };
 
-  const belowButtonPadding = "4px 15px"
+  const belowButtonPadding = '4px 15px';
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', maxHeight: '25px' }}>
       <div
         style={{
-          fontSize: "16px",
+          fontSize: '16px',
           fontWeight: 500,
           marginBottom: 0,
           marginRight: '10px',
-          padding: belowButtonPadding
+          padding: belowButtonPadding,
         }}
       >
         {getMonthName()}
       </div>
-      <Tag>Week {getWeek(new Date(addWeeks(startWeek, -1)))}</Tag>
+      <Tag>Week {getWeek(startWeek)}</Tag>
     </div>
   );
 };
@@ -55,7 +55,9 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
 }) => {
   return (
     <>
-      <Row style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+      <Row
+        style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}
+      >
         <div style={{ alignSelf: 'center' }}>
           <MonthName startWeek={startWeek} />
         </div>
@@ -86,11 +88,10 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
               </Button>
             </div>
           </div>
-
         </Col>
         <Col>
           <DatePicker
-            onChange={date => {
+            onChange={(date) => {
               if (date) {
                 setStartWeek(startOfWeek(new Date(date)));
               }

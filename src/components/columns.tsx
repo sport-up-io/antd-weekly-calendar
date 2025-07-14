@@ -32,7 +32,6 @@ export function createDayColumns<T extends GenericEvent>(
   onEventClick?: (e: T) => any | undefined,
   usaCalendar: boolean = false
 ): ColumnProps<EventsObject<T>>[] {
-  console.log('🚀 ~ usaCalendar:', usaCalendar);
   // Calendar order depends on usaCalendar prop
   const dayIndices = usaCalendar
     ? includeWeekends
@@ -40,7 +39,7 @@ export function createDayColumns<T extends GenericEvent>(
       : [1, 2, 3, 4, 5] // USA: Sunday to Saturday
     : includeWeekends
       ? [1, 2, 3, 4, 5, 6, 0]
-      : [1, 2, 3, 4, 5]; // French: Monday to Sunday
+      : [1, 2, 3, 4, 5]; // Standard: Monday to Sunday
 
   const dayNames = [
     'Sunday',
@@ -58,7 +57,7 @@ export function createDayColumns<T extends GenericEvent>(
       ? dayIndex // USA: use dayIndex directly
       : includeWeekends
         ? columnIndex + 1
-        : columnIndex + 1; // French: consecutive days starting from Monday
+        : columnIndex + 1; // Standard: consecutive days starting from Monday
 
     const columnDate = add(weekDates.startDate, { days: dateOffset });
     const formattedDay = `${format(columnDate, 'iii')} ${format(columnDate, 'dd')}`;
