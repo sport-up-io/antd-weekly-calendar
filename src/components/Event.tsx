@@ -18,7 +18,9 @@ export const EventBlock = <T extends GenericEvent>({
   const fitHourToDate = setDay(hour, getEventDay);
 
   const boxStyle = sizeEventBox(event, fitHourToDate);
-  const boxLeftPosition = BOX_POSITION_OFFSET * index;
+  // Calculate left position to avoid spacing between events (up to 4 events)
+  const boxLeftPosition =
+    events >= 4 ? (80 / events) * index : BOX_POSITION_OFFSET * index;
 
   return (
     <div
