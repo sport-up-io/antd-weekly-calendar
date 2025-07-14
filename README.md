@@ -14,7 +14,6 @@ A weekly calendar component for antd.
 
 ## Getting Started
 
-
 ```
 npm install antd-weekly-calendar
 ```
@@ -24,63 +23,63 @@ npm install antd-weekly-calendar
 This is a basic example, check out the `example` folder for a complete Chakra UI example!
 
 ```tsx
-import {
-  WeeklyCalendar,
-} from 'antd-weekly-calendar';
+import { WeeklyCalendar } from 'antd-weekly-calendar';
 
 const events = [
-  { startTime: new Date(2021, 3, 21, 12, 0, 0), endTime: new Date(2021, 3, 21, 14, 30, 0), title: 'Ap. 1', backgroundColor: 'red' },
-  { startTime: new Date(2021, 3, 25, 10, 0, 0), endTime: new Date(2021, 3, 25, 17, 15, 0), title: 'Ap. 1' },
+  {
+    startTime: new Date(2021, 3, 21, 12, 0, 0),
+    endTime: new Date(2021, 3, 21, 14, 30, 0),
+    title: 'Ap. 1',
+    backgroundColor: 'red',
+  },
+  {
+    startTime: new Date(2021, 3, 25, 10, 0, 0),
+    endTime: new Date(2021, 3, 25, 17, 15, 0),
+    title: 'Ap. 1',
+  },
 ];
 
 function MyCalendar() {
   return (
-      <>
-        <WeeklyCalendar
-            events={events}
-            onEventClick={(event) => console.log(event)}
-            onSelectDate={(date) => console.log(date)}
-        />
-      </>
+    <>
+      <WeeklyCalendar
+        events={events}
+        onEventClick={(event) => console.log(event)}
+        onSelectDate={(date) => console.log(date)}
+      />
+    </>
   );
 }
-
-
 ```
 
 ## Api
 
 ### `<WeeklyCalendar />`
 
-
-
-| Property     | Type | Default      | Description                                                                      |
-| ------------ | ------- | ------------ | -------------------------------------------------------------------------------- |
-| onEventClick | `(event) => void`        |   -    | Callback for when an event is being clicked                                       |
-| onSelectDate |  `(date) => void`     | -| Callback for when a date is selected                   |
-| weekends?     | `boolean` | `false`| Display weekend on the calendar    |
-| headerSticky? | `boolean` | `false`| Make the header sticky             |    
+| Property      | Type              | Default | Description                                 |
+| ------------- | ----------------- | ------- | ------------------------------------------- |
+| onEventClick  | `(event) => void` | -       | Callback for when an event is being clicked |
+| onSelectDate  | `(date) => void`  | -       | Callback for when a date is selected        |
+| weekends?     | `boolean`         | `false` | Display weekend on the calendar             |
+| headerSticky? | `boolean`         | `false` | Make the header sticky                      |
+| usaCalendar?  | `boolean`         | `false` | Change week days order to Usa norm          |
 
 ### Event Api
 
-
-| Value      | Type      | Default   | Description                                                |
-| ---------- | ---------- | ---------------------- | ---------------------------------------------------------- |
-| eventId | `string`         | -                          | EventId |
-| startTime | `Date`       | -                   | event start time                     |
-| endTime | `Date`   | -     | event end time |
-| title | `string`  | - | event title           |
-| location?  |    `string`    | -           | event location |
-event?                                                          |
-| textColor? |  `string`       |       `white` | You can use any of the CSS color formats such `#f00`, `#ff0000`, `rgb(255,0,0)`, or `red`.|
-| backgroundColor?| `string`   | `#36CFC9`     | You can use any of the CSS color formats such `#f00`, `#ff0000`, `rgb(255,0,0)`, or `red`.|
-
-
-
+| Value            | Type     | Default   | Description                                                                                |
+| ---------------- | -------- | --------- | ------------------------------------------------------------------------------------------ |
+| eventId          | `string` | -         | EventId                                                                                    |
+| startTime        | `Date`   | -         | event start time                                                                           |
+| endTime          | `Date`   | -         | event end time                                                                             |
+| title            | `string` | -         | event title                                                                                |
+| location?        | `string` | -         | event location                                                                             |
+| event?           |
+| textColor?       | `string` | `white`   | You can use any of the CSS color formats such `#f00`, `#ff0000`, `rgb(255,0,0)`, or `red`. |
+| backgroundColor? | `string` | `#36CFC9` | You can use any of the CSS color formats such `#f00`, `#ff0000`, `rgb(255,0,0)`, or `red`. |
 
 ## Contributing
 
-This is my first open source project.  Please feel free to contribute in any way you want.
+This is my first open source project. Please feel free to contribute in any way you want.
 
 Contributing can be as simple as giving feedback in the issues, updating documentation or writing your own posts, that can be linked in the README.
 Of course you are also welcome to propose changes via the issues or pull requests.

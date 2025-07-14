@@ -15,6 +15,7 @@ export interface BaseCalendarProps<T extends GenericEvent = GenericEvent> {
   eventTextColor?: string;
   eventBackgroundColor?: string;
   headerSticky?: boolean;
+  usaCalendar?: boolean;
 }
 
 export interface CalendarContainerProps<T extends GenericEvent = GenericEvent>

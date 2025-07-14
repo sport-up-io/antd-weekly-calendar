@@ -17,6 +17,7 @@ function Calendar<T extends GenericEvent>({
   onEventClick,
   weekends,
   headerSticky,
+  usaCalendar,
 }: CalendarBodyProps<T>) {
   const rowRef = useRef<null | HTMLDivElement>(null);
   const tableContainerRef = useRef<null | HTMLDivElement>(null);
@@ -77,7 +78,8 @@ function Calendar<T extends GenericEvent>({
   const dayColumns = createDayColumns(
     weekDatesRange,
     weekends,
-    onEventClick
+    onEventClick,
+    usaCalendar
   ).map((col) => ({
     ...col,
     title: (
