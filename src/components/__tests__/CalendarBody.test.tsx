@@ -73,7 +73,7 @@ describe('Calendar Component', () => {
     });
 
     it('renders correct date labels', () => {
-        const { getByText } = render(<CalendarBody {...defaultProps} weekends={true} />);
+        const { getByText } = render(<CalendarBody {...defaultProps} weekends={true} usaCalendar={true}/>);
         const expectedLabels = ['Hours', 'Sun 01', 'Mon 02', 'Tue 03', 'Wed 04', 'Thu 05', 'Fri 06', 'Sat 07'];
         expectedLabels.forEach(label => {
             expect(getByText(label)).toBeInTheDocument();
