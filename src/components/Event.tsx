@@ -1,4 +1,4 @@
-import { differenceInMinutes, getDay, setDay } from 'date-fns';
+import { differenceInMinutes, format, getDay, setDay } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { EventBlockProps, GenericEvent } from './types';
@@ -33,6 +33,9 @@ export const EventBlock = <T extends GenericEvent>({
     if (isClicked) {
       document.addEventListener('mousedown', handleClickOutside);
     }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, [isClicked]);
 
   const boxStyle = sizeEventBox(event, fitHourToDate);
@@ -48,7 +51,7 @@ export const EventBlock = <T extends GenericEvent>({
     : boxLeftPosition;
 
   const handleClick = () => {
-    if (isClicked) {
+    if (isClicked || events === 1) {
       if (onEventClick) {
         onEventClick(event);
       }
@@ -75,7 +78,7 @@ export const EventBlock = <T extends GenericEvent>({
           left: newLeftPosition + '%',
           borderWidth: '0.01rem',
           borderStyle: 'solid',
-          borderColor: 'var(--lt-color-background-default, #141414)',
+          borderColor: '#141414',
           borderRadius: '5px',
           backgroundColor: event.backgroundColor
             ? event.backgroundColor
@@ -93,6 +96,9 @@ export const EventBlock = <T extends GenericEvent>({
       >
         <p style={{ color: 'white', fontSize: '12px', paddingLeft: '5px' }}>
           {event.title}
+          <br />
+          {format(new Date(event.startTime), 'HH:mm')} -{' '}
+          {format(new Date(event.endTime), 'HH:mm')}
         </p>
       </div>
     </>
