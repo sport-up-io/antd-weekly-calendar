@@ -10,6 +10,7 @@ import {
   isSameWeek,
   startOfDay,
 } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
 import {
   DayName,
@@ -160,7 +161,9 @@ export const getDayHoursEvents = <T extends GenericEvent>(
     const eventObj: EventsObject<T> = {
       id: i,
       hourObject: hour,
-      hour: format(hour, 'hh a'),
+      hour: usaCalendar
+        ? format(hour, 'hh a') // USA format: 12 AM, 01 PM, etc.
+        : format(hour, 'HH:mm', { locale: fr }), // French format: 00:00, 13:00, etc.
     } as EventsObject<T>;
 
     // Add events for each day in the same order as columns
