@@ -1,5 +1,6 @@
 import { ColumnProps } from 'antd/es/table';
 import { add, format } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import React from 'react';
 
 import { EventBlock } from './Event';
@@ -41,11 +42,6 @@ export function createDayColumns<T extends GenericEvent>(
       ? [1, 2, 3, 4, 5, 6, 0] // European: Monday to Sunday
       : [1, 2, 3, 4, 5]; // European: Monday to Friday (no weekends)
 
-  // Day names based on calendar type (for display only) - short format
-  const dayDisplayNames = usaCalendar
-    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-    : ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-
   // Data keys always in English with capital letters (to match utils.ts)
   const dayDataKeys = [
     'Sunday',
@@ -75,7 +71,12 @@ export function createDayColumns<T extends GenericEvent>(
     }
 
     const columnDate = add(weekDates.startDate, { days: dateOffset });
-    const dayName = dayDisplayNames[dayIndex];
+
+    // Use French locale for day names when usaCalendar is false
+    const dayName = usaCalendar
+      ? format(columnDate, 'iii') // English short day name
+      : format(columnDate, 'iii', { locale: fr }); // French short day name
+
     const formattedDay = `${dayName} ${format(columnDate, 'dd')}`;
 
     return {
