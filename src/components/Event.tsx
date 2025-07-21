@@ -1,8 +1,8 @@
-import { add, differenceInMinutes, format, getDay } from 'date-fns';
+import { add, getDay } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { EventBlockProps, GenericEvent } from './types';
-import { sizeEventBox } from './utils';
+import { formatWithLocale, sizeEventBox } from './utils';
 
 const BOX_POSITION_OFFSET = 26;
 const TURQUOISE = '#36CFC9';
@@ -98,10 +98,7 @@ export const EventBlock = <T extends GenericEvent>({
       <div
         ref={eventRef}
         style={{
-          display:
-            differenceInMinutes(new Date(event.endTime), fitHourToDate) === 0
-              ? 'none'
-              : 'block',
+          display: 'block', // Always display events since they now have proper duration
           height: boxStyle.boxSize + '%',
           width: isClicked ? expandedWidth + '%' : originalWidth + '%',
           position: 'absolute',
@@ -130,8 +127,17 @@ export const EventBlock = <T extends GenericEvent>({
         <p style={{ color: 'white', fontSize: '12px', paddingLeft: '5px' }}>
           {event.title}
           <br />
-          {format(new Date(event.startTime), 'HH:mm')} -{' '}
-          {format(new Date(event.endTime), 'HH:mm')}
+          {formatWithLocale(
+            new Date(event.originalStartTime || event.startTime),
+            'HH:mm',
+            usaCalendar
+          )}
+          -
+          {formatWithLocale(
+            new Date(event.originalEndTime || event.endTime),
+            'HH:mm',
+            usaCalendar
+          )}
         </p>
       </div>
     </>

@@ -6,6 +6,8 @@ export interface GenericEvent {
   location?: string | undefined | null;
   textColor?: string | undefined;
   backgroundColor?: string | undefined;
+  originalStartTime?: Date; // For multi-day events, stores original start time
+  originalEndTime?: Date; // For multi-day events, stores original end time
 }
 
 export interface BaseCalendarProps<T extends GenericEvent = GenericEvent> {

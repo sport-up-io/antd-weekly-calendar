@@ -3,6 +3,7 @@ import {
   addHours,
   differenceInMinutes,
   eachDayOfInterval,
+  endOfDay,
   format,
   getDay,
   isSameDay,
@@ -28,8 +29,8 @@ export const formatWithLocale = (
   formatStr: string,
   usaCalendar: boolean = false
 ) => {
-  return usaCalendar 
-    ? format(date, formatStr) 
+  return usaCalendar
+    ? format(date, formatStr)
     : format(date, formatStr, { locale: fr });
 };
 
@@ -85,17 +86,43 @@ export const daysToWeekObject = <T extends GenericEvent>(
 
     if (!isSameDay(eventStartTimeDay, eventEndTimeDay)) {
       const result = eachDayOfInterval({
-        start: eventStartTimeDay,
-        end: eventEndTimeDay,
+        start: startOfDay(eventStartTimeDay),
+        end: startOfDay(eventEndTimeDay),
       });
-      for (const dayInterval in result) {
+
+      for (
+        let dayIntervalIndex = 0;
+        dayIntervalIndex < result.length;
+        dayIntervalIndex++
+      ) {
+        const currentDay = result[dayIntervalIndex];
+        const isFirstDay = dayIntervalIndex === 0;
+        const isLastDay = dayIntervalIndex === result.length - 1;
+
         const splitedEvent = { ...events[eventListIndex] };
-        splitedEvent.startTime = result[dayInterval];
-        splitedEvent.endTime = result[dayInterval];
-        const weekObjectKey: DayName =
-          dayNames[getDay(new Date(result[dayInterval]))];
-        isSameWeek(startWeek, splitedEvent.startTime, { weekStartsOn }) &&
+
+        // Store original times for display purposes
+        splitedEvent.originalStartTime = eventStartTimeDay;
+        splitedEvent.originalEndTime = eventEndTimeDay;
+
+        if (isFirstDay) {
+          // Premier jour : garde l'heure de début originale, termine à minuit
+          splitedEvent.startTime = eventStartTimeDay;
+          splitedEvent.endTime = endOfDay(currentDay);
+        } else if (isLastDay) {
+          // Dernier jour : commence à minuit, garde l'heure de fin originale
+          splitedEvent.startTime = startOfDay(currentDay);
+          splitedEvent.endTime = eventEndTimeDay;
+        } else {
+          // Jours intermédiaires : toute la journée
+          splitedEvent.startTime = startOfDay(currentDay);
+          splitedEvent.endTime = endOfDay(currentDay);
+        }
+
+        const weekObjectKey: DayName = dayNames[getDay(currentDay)];
+        if (isSameWeek(startWeek, currentDay, { weekStartsOn })) {
           weekObject[weekObjectKey].push(splitedEvent);
+        }
       }
     } else {
       const weekObjectKey: DayName = dayNames[getDay(eventStartTimeDay)];
@@ -174,10 +201,10 @@ export const getDayHoursEvents = <T extends GenericEvent>(
     const eventObj: EventsObject<T> = {
       id: i,
       hourObject: hour,
-      hour: usaCalendar 
+      hour: usaCalendar
         ? formatWithLocale(hour, 'hh a', true) // USA format: 12 AM, 01 PM, etc.
         : formatWithLocale(hour, 'HH:mm', false), // French format: 00:00, 13:00, etc.
-    } as EventsObject<T>;    // Add events for each day in the same order as columns
+    } as EventsObject<T>; // Add events for each day in the same order as columns
     dayIndices.forEach((dayIndex, columnIndex) => {
       const dayName = dayNames[dayIndex]; // Column key (e.g., 'Sunday')
       const dayNameLower = dayNamesLower[dayIndex]; // WeekObject key (e.g., 'sunday')
