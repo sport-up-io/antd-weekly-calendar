@@ -41,7 +41,13 @@ export function createDayColumns<T extends GenericEvent>(
       ? [1, 2, 3, 4, 5, 6, 0] // European: Monday to Sunday
       : [1, 2, 3, 4, 5]; // European: Monday to Friday (no weekends)
 
-  const dayNames =  [
+  // Day names based on calendar type (for display only) - short format
+  const dayDisplayNames = usaCalendar
+    ? ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    : ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+
+  // Data keys always in English with capital letters (to match utils.ts)
+  const dayDataKeys = [
     'Sunday',
     'Monday',
     'Tuesday',
@@ -69,12 +75,13 @@ export function createDayColumns<T extends GenericEvent>(
     }
 
     const columnDate = add(weekDates.startDate, { days: dateOffset });
-    const formattedDay = `${format(columnDate, 'iii')} ${format(columnDate, 'dd')}`;
+    const dayName = dayDisplayNames[dayIndex];
+    const formattedDay = `${dayName} ${format(columnDate, 'dd')}`;
 
     return {
       title: formattedDay,
-      dataIndex: dayNames[dayIndex],
-      key: dayNames[dayIndex],
+      dataIndex: dayDataKeys[dayIndex],
+      key: dayDataKeys[dayIndex],
       width: 2,
       render: (
         events: T[],
