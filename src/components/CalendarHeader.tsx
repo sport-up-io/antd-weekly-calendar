@@ -16,11 +16,15 @@ import { CalendarHeaderProps } from './types';
 
 interface MonthNameProps {
   startWeek: Date;
+  weekStartsOn?: 0 | 1;
 }
 
-const MonthName: React.FunctionComponent<MonthNameProps> = ({ startWeek }) => {
+const MonthName: React.FunctionComponent<MonthNameProps> = ({
+  startWeek,
+  weekStartsOn = 1,
+}) => {
   const getMonthName = () => {
-    const endOfWeekDate = endOfWeek(startWeek);
+    const endOfWeekDate = endOfWeek(startWeek, { weekStartsOn });
 
     if (getMonth(endOfWeekDate) == getMonth(startWeek)) {
       return format(startWeek, 'MMM');
@@ -44,7 +48,7 @@ const MonthName: React.FunctionComponent<MonthNameProps> = ({ startWeek }) => {
       >
         {getMonthName()}
       </div>
-      <Tag>Week {getWeek(startWeek)}</Tag>
+      <Tag>Week {getWeek(startWeek, { weekStartsOn })}</Tag>
     </div>
   );
 };
@@ -52,6 +56,7 @@ const MonthName: React.FunctionComponent<MonthNameProps> = ({ startWeek }) => {
 export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
   startWeek,
   setStartWeek,
+  weekStartsOn = 1,
 }) => {
   return (
     <>
@@ -59,7 +64,7 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
         style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}
       >
         <div style={{ alignSelf: 'center' }}>
-          <MonthName startWeek={startWeek} />
+          <MonthName startWeek={startWeek} weekStartsOn={weekStartsOn} />
         </div>
       </Row>
       <Row justify="space-between" style={{ marginBottom: '20px' }}>
@@ -70,7 +75,11 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
           }}
         >
           <div style={{ display: 'flex', marginRight: '20px' }}>
-            <Button onClick={() => setStartWeek(startOfWeek(new Date()))}>
+            <Button
+              onClick={() =>
+                setStartWeek(startOfWeek(new Date(), { weekStartsOn }))
+              }
+            >
               Today
             </Button>
             <div style={{ display: 'flex', padding: '0 10px' }}>
@@ -93,11 +102,11 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
           <DatePicker
             onChange={(date) => {
               if (date) {
-                setStartWeek(startOfWeek(new Date(date)));
+                setStartWeek(startOfWeek(new Date(date), { weekStartsOn }));
               }
             }}
             picker="week"
-            defaultValue={startOfWeek(new Date())}
+            defaultValue={startOfWeek(new Date(), { weekStartsOn })}
           />
         </Col>
       </Row>

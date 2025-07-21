@@ -24,7 +24,7 @@ describe('daysToWeekObject', () => {
       },
     ];
 
-    const startWeek = new Date('2024-08-18T00:00:00.000Z');
+    const startWeek = new Date('2024-08-18T00:00:00.000Z'); // Sunday
 
     const expectedWeekObject = {
       monday: [],
@@ -36,7 +36,7 @@ describe('daysToWeekObject', () => {
       sunday: [],
     };
 
-    const result = daysToWeekObject(events, startWeek);
+    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
 
     expect(result).toEqual(expectedWeekObject);
   });
@@ -62,7 +62,7 @@ describe('daysToWeekObject', () => {
         title: 'Event 3'
       },
     ];
-    const result = daysToWeekObject(events, startWeek);
+    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
     expect(result.wednesday.length).toBe(1);
     expect(result.thursday.length).toBe(1);
     expect(result.friday.length).toBe(1);
@@ -86,7 +86,7 @@ describe('daysToWeekObject', () => {
         title: 'Event 5'
       },
     ];
-    const result = daysToWeekObject(events, startWeek);
+    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
     expect(result.wednesday.length).toBe(1);
     expect(result.thursday.length).toBe(2);
     expect(result.friday.length).toBe(2);
@@ -114,7 +114,7 @@ describe('daysToWeekObject', () => {
         title: 'Event 8'
       },
     ];
-    const result = daysToWeekObject(events, startWeek);
+    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
     expect(result.thursday.length).toBe(3);
     expect(result.thursday[0].startTime).toEqual(events[0].startTime);
     expect(result.thursday[1].startTime).toEqual(events[1].startTime);
@@ -137,7 +137,7 @@ describe('daysToWeekObject', () => {
         title: 'Event 10'
       },
     ];
-    const result = daysToWeekObject(events, startWeek);
+    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
     expect(result.monday.length).toBe(0);
     expect(result.sunday.length).toBe(0);
   });

@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
 import { Card } from 'antd';
-import { startOfWeek, endOfWeek } from 'date-fns';
+import { endOfWeek, startOfWeek } from 'date-fns';
+import React, { useEffect, useState } from 'react';
 
 import Calendar from './components/CalendarBody';
 import { CalendarHeader } from './components/CalendarHeader';
-import { GenericEvent, CalendarContainerProps } from './components/types';
+import { CalendarContainerProps, GenericEvent } from './components/types';
 import { daysToWeekObject } from './components/utils';
 
 export function WeeklyCalendar<T extends GenericEvent>({
@@ -15,31 +15,41 @@ export function WeeklyCalendar<T extends GenericEvent>({
   currentDate,
   headerSticky = false,
   usaCalendar = false,
-  value
+  value,
 }: CalendarContainerProps<T>) {
   const dateToUse = currentDate || value;
+  const weekStartsOn = usaCalendar ? 0 : 1; // USA: Sunday (0), Europe: Monday (1)
 
-  const [startWeek, setStartWeek] = useState(startOfWeek(dateToUse || new Date(), { weekStartsOn: 0 }));
+  const [startWeek, setStartWeek] = useState(
+    startOfWeek(dateToUse || new Date(), { weekStartsOn })
+  );
   const weekPeriod = {
     startDate: startWeek,
-    endDate: endOfWeek(startWeek),
+    endDate: endOfWeek(startWeek, { weekStartsOn }),
   };
 
   useEffect(() => {
-    if (dateToUse && startOfWeek(dateToUse).getTime() !== startWeek.getTime()) {
-      setStartWeek(dateToUse);
+    if (
+      dateToUse &&
+      startOfWeek(dateToUse, { weekStartsOn }).getTime() !== startWeek.getTime()
+    ) {
+      setStartWeek(startOfWeek(dateToUse, { weekStartsOn }));
     }
-  }, [dateToUse]);
+  }, [dateToUse, weekStartsOn]);
 
   useEffect(() => {
     onSelectDate && onSelectDate(startWeek);
   }, [startWeek]);
 
-  const weekObject = daysToWeekObject(events, startWeek);
+  const weekObject = daysToWeekObject(events, startWeek, weekStartsOn);
 
   return (
     <Card>
-      <CalendarHeader startWeek={startWeek} setStartWeek={setStartWeek} />
+      <CalendarHeader
+        startWeek={startWeek}
+        setStartWeek={setStartWeek}
+        weekStartsOn={weekStartsOn}
+      />
       <Calendar
         weekDatesRange={weekPeriod}
         getDayEvents={weekObject}

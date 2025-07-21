@@ -51,6 +51,7 @@ export interface EventBlockProps<T> {
   hour: Date;
   events: number;
   onEventClick?: (e: T) => any | undefined;
+  usaCalendar?: boolean;
 }
 
 export type ColumnNode<T> = T[] | string;
@@ -85,4 +86,5 @@ export type DayName =
 export interface CalendarHeaderProps {
   startWeek: Date;
   setStartWeek: React.Dispatch<React.SetStateAction<Date>>;
+  weekStartsOn?: 0 | 1;
 }

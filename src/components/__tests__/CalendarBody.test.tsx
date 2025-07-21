@@ -62,6 +62,7 @@ describe('Calendar Component', () => {
     onEventClick: vi.fn(),
     weekends: false,
     headerSticky: false,
+    usaCalendar: true, // Use USA calendar to match the test dates
   };
 
   it('renders without errors', () => {

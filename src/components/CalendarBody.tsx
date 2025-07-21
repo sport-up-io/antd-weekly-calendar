@@ -116,7 +116,12 @@ function Calendar<T extends GenericEvent>({
       )}
       <Table
         rowKey={(record) => record.id}
-        dataSource={getDayHoursEvents(weekDatesRange, getDayEvents)}
+        dataSource={getDayHoursEvents(
+          weekDatesRange,
+          getDayEvents,
+          usaCalendar,
+          weekends
+        )}
         columns={tableColumns}
         pagination={false}
         bordered={true}

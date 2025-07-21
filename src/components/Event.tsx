@@ -1,4 +1,4 @@
-import { differenceInMinutes, format, getDay, setDay } from 'date-fns';
+import { add, differenceInMinutes, format, getDay } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react';
 
 import { EventBlockProps, GenericEvent } from './types';
@@ -13,12 +13,29 @@ export const EventBlock = <T extends GenericEvent>({
   hour,
   events,
   onEventClick,
+  usaCalendar = false,
 }: EventBlockProps<T>) => {
   const [isClicked, setIsClicked] = useState(false);
   const eventRef = useRef<HTMLDivElement>(null);
 
   const getEventDay = getDay(new Date(event.endTime));
-  const fitHourToDate = setDay(hour, getEventDay);
+
+  // Fix: Calculate the correct date for the event day within the current calendar week
+  // hour represents the base time for the current row, we need to adjust it to the actual event day
+  let fitHourToDate: Date;
+  if (usaCalendar) {
+    // USA calendar: use dayIndex directly (0=Sunday, 1=Monday, etc.)
+    fitHourToDate = add(hour, { days: getEventDay });
+  } else {
+    // European calendar: handle Sunday (dayIndex=0) as last day of week
+    if (getEventDay === 0) {
+      // Sunday is 6 days after Monday (the start of European week)
+      fitHourToDate = add(hour, { days: 6 });
+    } else {
+      // Monday(1)=0, Tuesday(2)=1, Wednesday(3)=2, Thursday(4)=3, Friday(5)=4, Saturday(6)=5
+      fitHourToDate = add(hour, { days: getEventDay - 1 });
+    }
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

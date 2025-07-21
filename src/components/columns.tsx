@@ -35,13 +35,13 @@ export function createDayColumns<T extends GenericEvent>(
   // Calendar order depends on usaCalendar prop
   const dayIndices = usaCalendar
     ? includeWeekends
-      ? [0, 1, 2, 3, 4, 5, 6]
-      : [1, 2, 3, 4, 5] // USA: Sunday to Saturday
+      ? [0, 1, 2, 3, 4, 5, 6] // USA: Sunday to Saturday
+      : [1, 2, 3, 4, 5] // USA: Monday to Friday (no weekends)
     : includeWeekends
-      ? [1, 2, 3, 4, 5, 6, 0]
-      : [1, 2, 3, 4, 5]; // Standard: Monday to Sunday
+      ? [1, 2, 3, 4, 5, 6, 0] // European: Monday to Sunday
+      : [1, 2, 3, 4, 5]; // European: Monday to Friday (no weekends)
 
-  const dayNames = [
+  const dayNames =  [
     'Sunday',
     'Monday',
     'Tuesday',
@@ -53,11 +53,20 @@ export function createDayColumns<T extends GenericEvent>(
 
   return dayIndices.map((dayIndex, columnIndex) => {
     // Calculate date offset based on calendar type
-    const dateOffset = usaCalendar
-      ? dayIndex // USA: use dayIndex directly
-      : includeWeekends
-        ? columnIndex + 1
-        : columnIndex + 1; // Standard: consecutive days starting from Monday
+    let dateOffset: number;
+    if (usaCalendar) {
+      // USA: use dayIndex directly (0=Sunday, 1=Monday, etc.)
+      dateOffset = dayIndex;
+    } else {
+      // European: handle Sunday (dayIndex=0) as last day of week
+      if (dayIndex === 0) {
+        // Sunday is 6 days after Monday (the start of European week)
+        dateOffset = 6;
+      } else {
+        // Monday(1)=0, Tuesday(2)=1, Wednesday(3)=2, Thursday(4)=3, Friday(5)=4, Saturday(6)=5
+        dateOffset = dayIndex - 1;
+      }
+    }
 
     const columnDate = add(weekDates.startDate, { days: dateOffset });
     const formattedDay = `${format(columnDate, 'iii')} ${format(columnDate, 'dd')}`;
@@ -80,6 +89,7 @@ export function createDayColumns<T extends GenericEvent>(
               hour={row.hourObject}
               events={events.length}
               onEventClick={onEventClick}
+              usaCalendar={usaCalendar}
             />
           ));
         }
