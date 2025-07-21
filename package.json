@@ -1,6 +1,6 @@
 {
   "name": "@sportup/antd-weekly-calendar",
-  "version": "2.0.10",
+  "version": "2.0.11",
   "license": "MIT",
   "main": "dist/antd-weekly-calendar.umd.js",
   "module": "dist/antd-weekly-calendar.es.js",
