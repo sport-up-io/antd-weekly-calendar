@@ -38,6 +38,22 @@ export const EventBlock = <T extends GenericEvent>({
     };
   }, [isClicked]);
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (isClicked) {
+      timer = setTimeout(() => {
+        setIsClicked(false);
+      }, 3000);
+    }
+
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [isClicked]);
+
   const boxStyle = sizeEventBox(event, fitHourToDate);
   // Calculate left position to avoid spacing between events (up to 4 events)
   const boxLeftPosition =
