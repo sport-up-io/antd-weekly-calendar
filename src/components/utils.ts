@@ -4,14 +4,12 @@ import {
   differenceInMinutes,
   eachDayOfInterval,
   endOfDay,
-  format,
   getDay,
   isSameDay,
   isSameHour,
   isSameWeek,
   startOfDay,
 } from 'date-fns';
-import { fr } from 'date-fns/locale';
 
 import { createLocaleFormatter } from './localeConfig';
 import {
@@ -21,20 +19,6 @@ import {
   WeekDateRange,
   WeekObject,
 } from './types';
-
-/**
- * Global format function that applies French locale when usaCalendar is false
- * @deprecated Use createLocaleFormatter instead for better performance
- */
-export const formatWithLocale = (
-  date: Date,
-  formatStr: string,
-  usaCalendar: boolean = false
-) => {
-  return usaCalendar
-    ? format(date, formatStr)
-    : format(date, formatStr, { locale: fr });
-};
 
 /**
  * Splits multi-day events into separate events for each day
