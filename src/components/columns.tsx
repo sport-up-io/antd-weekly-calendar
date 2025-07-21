@@ -3,8 +3,8 @@ import { add } from 'date-fns';
 import React from 'react';
 
 import { EventBlock } from './Event';
+import { createLocaleFormatter } from './localeConfig';
 import { EventsObject, GenericEvent } from './types';
-import { formatWithLocale } from './utils';
 
 export const SCROLL_TO_ROW = 6;
 
@@ -33,60 +33,25 @@ export function createDayColumns<T extends GenericEvent>(
   onEventClick?: (e: T) => any | undefined,
   usaCalendar: boolean = false
 ): ColumnProps<EventsObject<T>>[] {
-  // Calendar order depends on usaCalendar prop
-  const dayIndices = usaCalendar
-    ? includeWeekends
-      ? [0, 1, 2, 3, 4, 5, 6] // USA: Sunday to Saturday
-      : [1, 2, 3, 4, 5] // USA: Monday to Friday (no weekends)
-    : includeWeekends
-      ? [1, 2, 3, 4, 5, 6, 0] // European: Monday to Sunday
-      : [1, 2, 3, 4, 5]; // European: Monday to Friday (no weekends)
+  const locale = createLocaleFormatter(usaCalendar);
+  const dayIndices = locale.getDayIndices(includeWeekends);
 
-  // Data keys always in English with capital letters (to match utils.ts)
-  const dayDataKeys = [
-    'Sunday',
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-  ];
-
-  return dayIndices.map((dayIndex, columnIndex) => {
-    // Calculate date offset based on calendar type
-    let dateOffset: number;
-    if (usaCalendar) {
-      // USA: use dayIndex directly (0=Sunday, 1=Monday, etc.)
-      dateOffset = dayIndex;
-    } else {
-      // European: handle Sunday (dayIndex=0) as last day of week
-      if (dayIndex === 0) {
-        // Sunday is 6 days after Monday (the start of European week)
-        dateOffset = 6;
-      } else {
-        // Monday(1)=0, Tuesday(2)=1, Wednesday(3)=2, Thursday(4)=3, Friday(5)=4, Saturday(6)=5
-        dateOffset = dayIndex - 1;
-      }
-    }
-
+  return dayIndices.map((dayIndex) => {
+    const dateOffset = locale.getDateOffset(dayIndex);
     const columnDate = add(weekDates.startDate, { days: dateOffset });
-
-    // Use French locale for day names when usaCalendar is false
-    const dayName = formatWithLocale(columnDate, 'iii', usaCalendar);
-    
-    const formattedDay = `${dayName} ${formatWithLocale(columnDate, 'dd', usaCalendar)}`;
+    const dayName = locale.formatDate(columnDate, 'iii');
+    const formattedDay = `${dayName} ${locale.formatDate(columnDate, 'dd')}`;
 
     return {
       title: formattedDay,
-      dataIndex: dayDataKeys[dayIndex],
-      key: dayDataKeys[dayIndex],
+      dataIndex: locale.dayNames[dayIndex],
+      key: locale.dayNames[dayIndex],
       width: 2,
       render: (
         events: T[],
         row: EventsObject<T>
       ): React.ReactNode | undefined => {
-        if (events && events.length > 0) {
+        if (events?.length > 0) {
           return events.map((event: T, index: number) => (
             <EventBlock
               key={event.eventId}

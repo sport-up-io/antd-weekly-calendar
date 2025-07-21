@@ -1,8 +1,9 @@
 import { add, getDay } from 'date-fns';
 import React, { useEffect, useRef, useState } from 'react';
 
+import { createLocaleFormatter } from './localeConfig';
 import { EventBlockProps, GenericEvent } from './types';
-import { formatWithLocale, sizeEventBox } from './utils';
+import { sizeEventBox } from './utils';
 
 const BOX_POSITION_OFFSET = 26;
 const TURQUOISE = '#36CFC9';
@@ -17,25 +18,10 @@ export const EventBlock = <T extends GenericEvent>({
 }: EventBlockProps<T>) => {
   const [isClicked, setIsClicked] = useState(false);
   const eventRef = useRef<HTMLDivElement>(null);
+  const locale = createLocaleFormatter(usaCalendar);
 
   const getEventDay = getDay(new Date(event.endTime));
-
-  // Fix: Calculate the correct date for the event day within the current calendar week
-  // hour represents the base time for the current row, we need to adjust it to the actual event day
-  let fitHourToDate: Date;
-  if (usaCalendar) {
-    // USA calendar: use dayIndex directly (0=Sunday, 1=Monday, etc.)
-    fitHourToDate = add(hour, { days: getEventDay });
-  } else {
-    // European calendar: handle Sunday (dayIndex=0) as last day of week
-    if (getEventDay === 0) {
-      // Sunday is 6 days after Monday (the start of European week)
-      fitHourToDate = add(hour, { days: 6 });
-    } else {
-      // Monday(1)=0, Tuesday(2)=1, Wednesday(3)=2, Thursday(4)=3, Friday(5)=4, Saturday(6)=5
-      fitHourToDate = add(hour, { days: getEventDay - 1 });
-    }
-  }
+  const fitHourToDate = add(hour, { days: locale.getDateOffset(getEventDay) });
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -127,16 +113,14 @@ export const EventBlock = <T extends GenericEvent>({
         <p style={{ color: 'white', fontSize: '12px', paddingLeft: '5px' }}>
           {event.title}
           <br />
-          {formatWithLocale(
+          {locale.formatDate(
             new Date(event.originalStartTime || event.startTime),
-            'HH:mm',
-            usaCalendar
+            'HH:mm'
           )}
-          -
-          {formatWithLocale(
+          {' - '}
+          {locale.formatDate(
             new Date(event.originalEndTime || event.endTime),
-            'HH:mm',
-            usaCalendar
+            'HH:mm'
           )}
         </p>
       </div>
