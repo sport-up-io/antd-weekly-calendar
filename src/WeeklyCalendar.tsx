@@ -49,6 +49,7 @@ export function WeeklyCalendar<T extends GenericEvent>({
         startWeek={startWeek}
         setStartWeek={setStartWeek}
         weekStartsOn={weekStartsOn}
+        usaCalendar={usaCalendar}
       />
       <Calendar
         weekDatesRange={weekPeriod}

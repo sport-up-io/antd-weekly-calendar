@@ -21,6 +21,19 @@ import {
 } from './types';
 
 /**
+ * Global format function that applies French locale when usaCalendar is false
+ */
+export const formatWithLocale = (
+  date: Date,
+  formatStr: string,
+  usaCalendar: boolean = false
+) => {
+  return usaCalendar 
+    ? format(date, formatStr) 
+    : format(date, formatStr, { locale: fr });
+};
+
+/**
  * Converts an array of events into a structured object representing the events of a specific week.
  *
  * This function processes a list of events and organizes them into a week object, where each day of the week (Sunday to Saturday)
@@ -161,12 +174,10 @@ export const getDayHoursEvents = <T extends GenericEvent>(
     const eventObj: EventsObject<T> = {
       id: i,
       hourObject: hour,
-      hour: usaCalendar
-        ? format(hour, 'hh a') // USA format: 12 AM, 01 PM, etc.
-        : format(hour, 'HH:mm', { locale: fr }), // French format: 00:00, 13:00, etc.
-    } as EventsObject<T>;
-
-    // Add events for each day in the same order as columns
+      hour: usaCalendar 
+        ? formatWithLocale(hour, 'hh a', true) // USA format: 12 AM, 01 PM, etc.
+        : formatWithLocale(hour, 'HH:mm', false), // French format: 00:00, 13:00, etc.
+    } as EventsObject<T>;    // Add events for each day in the same order as columns
     dayIndices.forEach((dayIndex, columnIndex) => {
       const dayName = dayNames[dayIndex]; // Column key (e.g., 'Sunday')
       const dayNameLower = dayNamesLower[dayIndex]; // WeekObject key (e.g., 'sunday')

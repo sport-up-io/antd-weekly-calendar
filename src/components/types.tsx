@@ -87,4 +87,5 @@ export interface CalendarHeaderProps {
   startWeek: Date;
   setStartWeek: React.Dispatch<React.SetStateAction<Date>>;
   weekStartsOn?: 0 | 1;
+  usaCalendar?: boolean;
 }

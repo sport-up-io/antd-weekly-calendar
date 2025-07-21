@@ -1,10 +1,10 @@
 import { ColumnProps } from 'antd/es/table';
-import { add, format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { add } from 'date-fns';
 import React from 'react';
 
 import { EventBlock } from './Event';
 import { EventsObject, GenericEvent } from './types';
+import { formatWithLocale } from './utils';
 
 export const SCROLL_TO_ROW = 6;
 
@@ -73,11 +73,9 @@ export function createDayColumns<T extends GenericEvent>(
     const columnDate = add(weekDates.startDate, { days: dateOffset });
 
     // Use French locale for day names when usaCalendar is false
-    const dayName = usaCalendar
-      ? format(columnDate, 'iii') // English short day name
-      : format(columnDate, 'iii', { locale: fr }); // French short day name
-
-    const formattedDay = `${dayName} ${format(columnDate, 'dd')}`;
+    const dayName = formatWithLocale(columnDate, 'iii', usaCalendar);
+    
+    const formattedDay = `${dayName} ${formatWithLocale(columnDate, 'dd', usaCalendar)}`;
 
     return {
       title: formattedDay,

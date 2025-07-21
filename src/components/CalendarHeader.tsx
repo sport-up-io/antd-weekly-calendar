@@ -3,7 +3,6 @@ import { Button, Col, Row, Tag } from 'antd';
 import {
   addWeeks,
   endOfWeek,
-  format,
   getMonth,
   getWeek,
   startOfWeek,
@@ -11,26 +10,29 @@ import {
 import React from 'react';
 
 import DatePicker from './DatePicker';
+import { formatWithLocale } from './utils';
 
 import { CalendarHeaderProps } from './types';
 
 interface MonthNameProps {
   startWeek: Date;
   weekStartsOn?: 0 | 1;
+  usaCalendar?: boolean;
 }
 
 const MonthName: React.FunctionComponent<MonthNameProps> = ({
   startWeek,
   weekStartsOn = 1,
+  usaCalendar = false,
 }) => {
   const getMonthName = () => {
     const endOfWeekDate = endOfWeek(startWeek, { weekStartsOn });
 
     if (getMonth(endOfWeekDate) == getMonth(startWeek)) {
-      return format(startWeek, 'MMM');
+      return formatWithLocale(startWeek, 'MMM', usaCalendar);
     }
 
-    return format(startWeek, 'MMM') + '-' + format(endOfWeekDate, 'MMM');
+    return formatWithLocale(startWeek, 'MMM', usaCalendar) + '-' + formatWithLocale(endOfWeekDate, 'MMM', usaCalendar);
   };
 
   const belowButtonPadding = '4px 15px';
@@ -57,6 +59,7 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
   startWeek,
   setStartWeek,
   weekStartsOn = 1,
+  usaCalendar = false,
 }) => {
   return (
     <>
@@ -64,7 +67,7 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
         style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}
       >
         <div style={{ alignSelf: 'center' }}>
-          <MonthName startWeek={startWeek} weekStartsOn={weekStartsOn} />
+          <MonthName startWeek={startWeek} weekStartsOn={weekStartsOn} usaCalendar={usaCalendar} />
         </div>
       </Row>
       <Row justify="space-between" style={{ marginBottom: '20px' }}>
