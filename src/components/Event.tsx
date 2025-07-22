@@ -58,11 +58,12 @@ export const EventBlock = <T extends GenericEvent>({
   }, [isClicked]);
 
   const boxStyle = sizeEventBox(event, fitHourToDate);
+
+  const isSmallEvent = boxStyle.boxSize <= 30;
+
   // Calculate left position to avoid spacing between events (up to 4 events)
   const boxLeftPosition =
-    events >= 4 ? (93 / events) * index : BOX_POSITION_OFFSET * index;
-
-  // Calculate original width and new left position when expanded
+    events >= 4 ? (93 / events) * index : BOX_POSITION_OFFSET * index; // Calculate original width and new left position when expanded
   const originalWidth = 93 - boxLeftPosition;
   const expandedWidth = 93;
   const newLeftPosition = isClicked
@@ -84,7 +85,7 @@ export const EventBlock = <T extends GenericEvent>({
       <div
         ref={eventRef}
         style={{
-          display: 'block', // Always display events since they now have proper duration
+          display: 'block',
           height: boxStyle.boxSize + '%',
           width: isClicked ? expandedWidth + '%' : originalWidth + '%',
           position: 'absolute',
@@ -110,7 +111,22 @@ export const EventBlock = <T extends GenericEvent>({
         onContextMenu={(e) => e.preventDefault()}
         key={index}
       >
-        <p style={{ color: 'white', fontSize: '12px', paddingLeft: '5px' }}>
+        <p
+          style={
+            isSmallEvent
+              ? {
+                  color: 'white',
+                  fontSize: '12px',
+                  paddingLeft: '0',
+                  textAlign: 'center',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  margin: 0,
+                  lineHeight: '0.9',
+                }
+              : { color: 'white', fontSize: '12px', paddingLeft: '5px' }
+          }
+        >
           {event.title}
           <br />
           {locale.formatDate(

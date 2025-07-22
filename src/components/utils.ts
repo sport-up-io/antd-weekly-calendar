@@ -194,7 +194,7 @@ export const sizeEventBox = <T extends GenericEvent>(event: T, hour: Date) => {
   const eventStartTime = new Date(event.startTime);
   const eventEndTime = new Date(event.endTime);
 
-  const boxSize =
+  let boxSize =
     Math.floor(
       differenceInMinutes(eventEndTime, eventStartTime) * HOUR_TO_DECIMAL
     ) < MIN_BOX_SIZE
@@ -202,10 +202,23 @@ export const sizeEventBox = <T extends GenericEvent>(event: T, hour: Date) => {
       : Math.floor(
           differenceInMinutes(eventEndTime, eventStartTime) * HOUR_TO_DECIMAL
         );
-  const boxPosition =
+
+  let boxPosition =
     differenceInMinutes(hour, eventStartTime) * HOUR_TO_DECIMAL > 100
       ? 0
       : differenceInMinutes(eventStartTime, hour) * HOUR_TO_DECIMAL;
+
+  // Check for events after 23:00 that would overflow the cell
+  const isAfter23 = eventStartTime.getHours() >= 23;
+  if (isAfter23 && boxPosition + boxSize > 100) {
+    const remainingSpace = 100 - boxPosition;
+    if (remainingSpace >= 25) {
+      boxSize = remainingSpace;
+    } else {
+      boxSize = 25;
+      boxPosition = 75;
+    }
+  }
   return { boxPosition: boxPosition, boxSize: boxSize };
 };
 
