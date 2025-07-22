@@ -111,7 +111,7 @@ export const EventBlock = <T extends GenericEvent>({
         onContextMenu={(e) => e.preventDefault()}
         key={index}
       >
-        <p
+        <div
           style={
             isSmallEvent
               ? {
@@ -124,10 +124,15 @@ export const EventBlock = <T extends GenericEvent>({
                   margin: 0,
                   lineHeight: '0.9',
                 }
-              : { color: 'white', fontSize: '12px', paddingLeft: '5px' }
+              : {
+                  color: 'white',
+                  fontSize: '12px',
+                  paddingLeft: '5px',
+                  paddingTop: '4px',
+                }
           }
         >
-          {event.title}
+          <span style={{ fontWeight: 500 }}>{event.title}</span>
           <br />
           {locale.formatDate(
             new Date(event.originalStartTime || event.startTime),
@@ -138,7 +143,7 @@ export const EventBlock = <T extends GenericEvent>({
             new Date(event.originalEndTime || event.endTime),
             'HH:mm'
           )}
-        </p>
+        </div>
       </div>
     </>
   );
