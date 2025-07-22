@@ -47,7 +47,7 @@ export const EventBlock = <T extends GenericEvent>({
     if (isClicked) {
       timer = setTimeout(() => {
         setIsClicked(false);
-      }, 3000);
+      }, 1500);
     }
 
     return () => {
