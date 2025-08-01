@@ -5,7 +5,7 @@ import {WeeklyCalendar, FilterSelect, FilterOption} from '@sportup/antd-weekly-c
 import {ModelTypes} from '@swagger/generated/hasura/zeus';
 import {getRandomColorFromString} from '@utils/get-random-color';
 import {useParams} from 'next/navigation';
-import {FunctionComponent, useState, useMemo} from 'react';
+import {FunctionComponent, useState, useMemo, useEffect} from 'react';
 import GameModal from '../../games/game-modal';
 
 interface SportsComplexesDiaryPageProps {}
@@ -81,6 +81,13 @@ const SportsComplexesDiaryPage: FunctionComponent<SportsComplexesDiaryPageProps>
 		
 		return Array.from(uniquePlaygrounds.values());
 	}, [sportsComplex?.timeSlots]);
+
+	// Set first playground as default when playgrounds are loaded
+	useEffect(() => {
+		if (playgroundOptions.length > 0 && selectedPlaygroundIds.length === 0) {
+			setSelectedPlaygroundIds([playgroundOptions[0].value]);
+		}
+	}, [playgroundOptions, selectedPlaygroundIds.length]);
 
 	// Filter events by selected playground IDs
 	const filteredEventIds = useMemo(() => {
