@@ -16,6 +16,8 @@ export function WeeklyCalendar<T extends GenericEvent>({
   headerSticky = false,
   usaCalendar = false,
   value,
+  filterComponent,
+  filteredEventIds,
 }: CalendarContainerProps<T>) {
   const dateToUse = currentDate || value;
   const weekStartsOn = usaCalendar ? 0 : 1; // USA: Sunday (0), Europe: Monday (1)
@@ -41,8 +43,13 @@ export function WeeklyCalendar<T extends GenericEvent>({
     onSelectDate && onSelectDate(startWeek);
   }, [startWeek]);
 
-  const weekObject = daysToWeekObject(events, startWeek, weekStartsOn);
+  // Filter events based on filteredEventIds if provided
+  const filteredEvents =
+    filteredEventIds && filteredEventIds.length > 0
+      ? events.filter((event) => filteredEventIds.includes(event.eventId))
+      : events;
 
+  const weekObject = daysToWeekObject(filteredEvents, startWeek, weekStartsOn);
   return (
     <Card>
       <CalendarHeader
@@ -50,6 +57,7 @@ export function WeeklyCalendar<T extends GenericEvent>({
         setStartWeek={setStartWeek}
         weekStartsOn={weekStartsOn}
         usaCalendar={usaCalendar}
+        filterComponent={filterComponent}
       />
       <Calendar
         weekDatesRange={weekPeriod}

@@ -59,11 +59,18 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
   setStartWeek,
   weekStartsOn = 1,
   usaCalendar = false,
+  filterComponent,
 }) => {
   return (
     <>
       <Row
-        style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          marginBottom: '20px',
+          flexWrap: 'wrap',
+          gap: '10px',
+        }}
       >
         <div style={{ alignSelf: 'center' }}>
           <MonthName
@@ -73,38 +80,51 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
           />
         </div>
       </Row>
-      <Row justify="space-between" style={{ marginBottom: '20px' }}>
+
+      <Row
+        justify="space-between"
+        style={{
+          marginBottom: '20px',
+          flexWrap: 'wrap',
+          gap: '10px',
+        }}
+      >
         <Col
           style={{
             display: 'flex',
-            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            gap: '10px',
           }}
         >
-          <div style={{ display: 'flex', marginRight: '20px' }}>
-            <Button
-              onClick={() =>
-                setStartWeek(startOfWeek(new Date(), { weekStartsOn }))
-              }
-            >
-              Today
+          <Button
+            onClick={() =>
+              setStartWeek(startOfWeek(new Date(), { weekStartsOn }))
+            }
+          >
+            Aujourd'hui
+          </Button>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <Button onClick={() => setStartWeek(addWeeks(startWeek, -1))}>
+              <LeftOutlined />
             </Button>
-            <div style={{ display: 'flex', padding: '0 10px' }}>
-              <Button
-                style={{ margin: '0 5px' }}
-                onClick={() => setStartWeek(addWeeks(startWeek, -1))}
-              >
-                <LeftOutlined />
-              </Button>
-              <Button
-                style={{ margin: '0 5px' }}
-                onClick={() => setStartWeek(addWeeks(startWeek, 1))}
-              >
-                <RightOutlined />
-              </Button>
-            </div>
+            <Button onClick={() => setStartWeek(addWeeks(startWeek, 1))}>
+              <RightOutlined />
+            </Button>
           </div>
         </Col>
-        <Col>
+
+        <Col
+          style={{
+            display: 'flex',
+            gap: '10px',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+          }}
+        >
+          {filterComponent && filterComponent}
           <DatePicker
             onChange={(date) => {
               if (date) {
@@ -113,6 +133,7 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
             }}
             picker="week"
             defaultValue={startOfWeek(new Date(), { weekStartsOn })}
+            style={{ minWidth: '150px' }}
           />
         </Col>
       </Row>

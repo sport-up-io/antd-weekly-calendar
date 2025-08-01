@@ -29,6 +29,8 @@ export interface CalendarContainerProps<T extends GenericEvent = GenericEvent>
   value?: Date;
 
   currentDate?: Date;
+  filterComponent?: React.ReactNode;
+  filteredEventIds?: (string | number)[];
 }
 
 export interface CalendarBodyProps<T extends GenericEvent = GenericEvent>
@@ -90,4 +92,5 @@ export interface CalendarHeaderProps {
   setStartWeek: React.Dispatch<React.SetStateAction<Date>>;
   weekStartsOn?: 0 | 1;
   usaCalendar?: boolean;
+  filterComponent?: React.ReactNode;
 }
