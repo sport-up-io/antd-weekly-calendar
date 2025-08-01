@@ -1,0 +1,165 @@
+// IMPROVED RESPONSIVE CALENDAR HEADER
+// Replace your existing JSX with this improved version:
+
+<>
+  {/* Month Name Section - Centered and responsive */}
+  <Row 
+    style={{ 
+      display: 'flex', 
+      justifyContent: 'center',
+      alignItems: 'center', 
+      marginBottom: '16px' 
+    }}
+  >
+    <Col xs={24} style={{ textAlign: 'center' }}>
+      <MonthName
+        startWeek={startWeek}
+        weekStartsOn={weekStartsOn}
+        usaCalendar={usaCalendar}
+      />
+    </Col>
+  </Row>
+
+  {/* Controls Section - Improved responsive layout */}
+  <Row 
+    gutter={[16, 16]} 
+    style={{ marginBottom: '24px' }}
+    align="middle"
+  >
+    {/* Navigation Controls - Left side */}
+    <Col 
+      xs={24} 
+      sm={12} 
+      md={10} 
+      lg={12}
+      style={{
+        display: 'flex',
+        justifyContent: 'flex-start'
+      }}
+    >
+      <div style={{ 
+        display: 'flex', 
+        gap: '8px', 
+        alignItems: 'center'
+      }}>
+        <Button
+          onClick={() =>
+            setStartWeek(startOfWeek(new Date(), { weekStartsOn }))
+          }
+          style={{ minWidth: '90px' }}
+        >
+          Aujourd'hui
+        </Button>
+        <Button
+          icon={<LeftOutlined />}
+          onClick={() => setStartWeek(addWeeks(startWeek, -1))}
+          style={{
+            width: '40px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0
+          }}
+        />
+        <Button
+          icon={<RightOutlined />}
+          onClick={() => setStartWeek(addWeeks(startWeek, 1))}
+          style={{
+            width: '40px',
+            height: '32px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 0
+          }}
+        />
+      </div>
+    </Col>
+
+    {/* Filter and Date Picker Section - Right side */}
+    <Col 
+      xs={24} 
+      sm={12} 
+      md={14} 
+      lg={12}
+      style={{
+        display: 'flex',
+        justifyContent: 'flex-end'
+      }}
+    >
+      <div style={{ 
+        display: 'flex', 
+        gap: '12px', 
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        justifyContent: 'flex-end'
+      }}>
+        {filterComponent && (
+          <div style={{ 
+            minWidth: 'fit-content',
+            flexShrink: 0 
+          }}>
+            {filterComponent}
+          </div>
+        )}
+        <DatePicker
+          onChange={(date) => {
+            if (date) {
+              setStartWeek(startOfWeek(new Date(date), { weekStartsOn }));
+            }
+          }}
+          picker="week"
+          defaultValue={startOfWeek(new Date(), { weekStartsOn })}
+          placeholder="Sélectionner une semaine"
+          style={{ 
+            minWidth: '140px',
+            maxWidth: '180px',
+            flexShrink: 0
+          }}
+        />
+      </div>
+    </Col>
+  </Row>
+</>
+
+/* Add this CSS to your component or global styles for mobile responsiveness */
+@media (max-width: 575px) {
+  .calendar-header .ant-col:first-child > div {
+    justify-content: center !important;
+  }
+  
+  .calendar-header .ant-col:last-child > div {
+    justify-content: center !important;
+  }
+  
+  .calendar-header .ant-col:last-child > div > div {
+    justify-content: center !important;
+  }
+  
+  .calendar-header .ant-btn:first-child {
+    flex: 1;
+    min-width: unset !important;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+  .calendar-header .ant-col:last-child > div {
+    justify-content: flex-start !important;
+  }
+  
+  .calendar-header .ant-col:last-child > div > div {
+    justify-content: flex-start !important;
+  }
+}
+
+// KEY IMPROVEMENTS MADE:
+// 1. Better responsive breakpoints (xs/sm/md/lg)
+// 2. Consistent spacing with gutter system
+// 3. Proper alignment using align="middle"
+// 4. Mobile-first approach with centered elements on small screens
+// 5. Cleaner button sizing and gap management
+// 6. Better flexbox utilization
+// 7. Improved semantic structure
+// 8. Added proper flexShrink to prevent element crushing
+// 9. Better placeholder text for accessibility
