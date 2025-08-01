@@ -5,7 +5,7 @@ import {WeeklyCalendar, FilterSelect, FilterOption} from '@sportup/antd-weekly-c
 import {ModelTypes} from '@swagger/generated/hasura/zeus';
 import {getRandomColorFromString} from '@utils/get-random-color';
 import {useParams} from 'next/navigation';
-import {FunctionComponent, useState, useMemo, useEffect} from 'react';
+import {FunctionComponent, useState, useMemo} from 'react';
 import GameModal from '../../games/game-modal';
 
 interface SportsComplexesDiaryPageProps {}
@@ -82,23 +82,23 @@ const SportsComplexesDiaryPage: FunctionComponent<SportsComplexesDiaryPageProps>
 		return Array.from(uniquePlaygrounds.values());
 	}, [sportsComplex?.timeSlots]);
 
-	// Set first playground as default when playgrounds are loaded
-	useEffect(() => {
-		if (playgroundOptions.length > 0 && selectedPlaygroundIds.length === 0) {
-			setSelectedPlaygroundIds([playgroundOptions[0].value]);
-		}
-	}, [playgroundOptions, selectedPlaygroundIds.length]);
-
 	// Filter events by selected playground IDs
 	const filteredEventIds = useMemo(() => {
-		if (selectedPlaygroundIds.length === 0) {
-			return []; // Show all events when no filter is selected
+		// If no playgrounds are selected but we have a default, use the first playground
+		const idsToFilter = selectedPlaygroundIds.length > 0 
+			? selectedPlaygroundIds 
+			: playgroundOptions.length > 0 
+				? [playgroundOptions[0].value] 
+				: [];
+		
+		if (idsToFilter.length === 0) {
+			return []; // Show all events when no filter is available
 		}
 		
 		return events
-			.filter((event) => selectedPlaygroundIds.includes(event.playgroundId))
+			.filter((event) => idsToFilter.includes(event.playgroundId))
 			.map((event) => event.eventId);
-	}, [events, selectedPlaygroundIds]);
+	}, [events, selectedPlaygroundIds, playgroundOptions]);
 
 	const handlePlaygroundFilterChange = (values: (string | number)[]) => {
 		setSelectedPlaygroundIds(values);
@@ -111,6 +111,7 @@ const SportsComplexesDiaryPage: FunctionComponent<SportsComplexesDiaryPageProps>
 			onChange={handlePlaygroundFilterChange}
 			placeholder="Filter by playground"
 			style={{ width: '250px' }}
+			defaultValue={playgroundOptions.length > 0 ? [playgroundOptions[0].value] : []}
 		/>
 	);
 

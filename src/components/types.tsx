@@ -24,6 +24,7 @@ export interface FilterComponentProps {
   onChange?: (values: (string | number)[]) => void;
   placeholder?: string;
   style?: React.CSSProperties;
+  defaultValue?: (string | number)[];
 }
 
 export interface BaseCalendarProps<T extends GenericEvent = GenericEvent> {

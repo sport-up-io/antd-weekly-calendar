@@ -8,6 +8,7 @@ export const FilterSelect: React.FC<FilterComponentProps> = ({
   onChange,
   placeholder = 'Select filters...',
   style = { width: '200px' },
+  defaultValue = [],
 }) => {
   const handleChange = (values: (string | number)[]) => {
     onChange?.(values);
@@ -19,6 +20,7 @@ export const FilterSelect: React.FC<FilterComponentProps> = ({
       style={style}
       placeholder={placeholder}
       value={selectedValues}
+      defaultValue={defaultValue}
       onChange={handleChange}
       options={options}
       optionRender={(option) => (
