@@ -82,12 +82,12 @@ const SportsComplexesDiaryPage: FunctionComponent<SportsComplexesDiaryPageProps>
 		return Array.from(uniquePlaygrounds.values());
 	}, [sportsComplex?.timeSlots]);
 
-	// Initialize with first playground when options are available
+	// Initialize with first playground when options are available (only once)
 	useEffect(() => {
-		if (playgroundOptions.length > 0 && selectedPlaygroundIds.length === 0) {
+		if (playgroundOptions.length > 0 && selectedPlaygroundIds.length === 0 && !isLoading) {
 			setSelectedPlaygroundIds([playgroundOptions[0].value]);
 		}
-	}, [playgroundOptions, selectedPlaygroundIds.length]);
+	}, [playgroundOptions.length, isLoading]); // Remove selectedPlaygroundIds.length from dependencies
 
 	// Filter events by selected playground IDs
 	const filteredEventIds = useMemo(() => {
