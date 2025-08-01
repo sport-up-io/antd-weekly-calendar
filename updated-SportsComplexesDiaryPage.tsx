@@ -82,23 +82,23 @@ const SportsComplexesDiaryPage: FunctionComponent<SportsComplexesDiaryPageProps>
 		return Array.from(uniquePlaygrounds.values());
 	}, [sportsComplex?.timeSlots]);
 
-	// Set first playground as default when data loads (simple approach)
-	useEffect(() => {
-		if (playgroundOptions.length > 0 && selectedPlaygroundIds.length === 0) {
-			setSelectedPlaygroundIds([playgroundOptions[0].value]);
-		}
-	}, [playgroundOptions]);
-
 	// Filter events by selected playground IDs
 	const filteredEventIds = useMemo(() => {
-		if (selectedPlaygroundIds.length === 0) {
-			return []; // Show all events when no filter is selected
+		// If no selection yet but we have options, use first playground as default for filtering
+		const idsToFilter = selectedPlaygroundIds.length > 0 
+			? selectedPlaygroundIds 
+			: playgroundOptions.length > 0 
+				? [playgroundOptions[0].value]
+				: [];
+		
+		if (idsToFilter.length === 0) {
+			return []; // Show all events when no filter is available
 		}
 		
 		return events
-			.filter((event) => selectedPlaygroundIds.includes(event.playgroundId))
+			.filter((event) => idsToFilter.includes(event.playgroundId))
 			.map((event) => event.eventId);
-	}, [events, selectedPlaygroundIds]);
+	}, [events, selectedPlaygroundIds, playgroundOptions]);
 
 	const handlePlaygroundFilterChange = (values: (string | number)[]) => {
 		setSelectedPlaygroundIds(values);
@@ -107,10 +107,10 @@ const SportsComplexesDiaryPage: FunctionComponent<SportsComplexesDiaryPageProps>
 	const playgroundFilter = (
 		<FilterSelect
 			options={playgroundOptions}
-			selectedValues={selectedPlaygroundIds}
 			onChange={handlePlaygroundFilterChange}
 			placeholder="Filter by playground"
 			style={{ width: '250px' }}
+			defaultValue={playgroundOptions.length > 0 ? [playgroundOptions[0].value] : []}
 		/>
 	);
 
