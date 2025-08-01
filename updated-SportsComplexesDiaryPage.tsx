@@ -14,7 +14,6 @@ const SportsComplexesDiaryPage: FunctionComponent<SportsComplexesDiaryPageProps>
 	const {sportsComplexId} = useParams();
 	const [selectedEventId, setSelectedEventId] = useState<string>();
 	const [selectedPlaygroundIds, setSelectedPlaygroundIds] = useState<(string | number)[]>([]);
-	const [hasInitialized, setHasInitialized] = useState(false);
 
 	const {data, isLoading} = useOne<ModelTypes['sportsComplexes']>({
 		resource: 'sportsComplexes',
@@ -83,13 +82,12 @@ const SportsComplexesDiaryPage: FunctionComponent<SportsComplexesDiaryPageProps>
 		return Array.from(uniquePlaygrounds.values());
 	}, [sportsComplex?.timeSlots]);
 
-	// Initialize with first playground only once when data loads
+	// Set first playground as default when data loads (simple approach)
 	useEffect(() => {
-		if (playgroundOptions.length > 0 && !hasInitialized) {
+		if (playgroundOptions.length > 0 && selectedPlaygroundIds.length === 0) {
 			setSelectedPlaygroundIds([playgroundOptions[0].value]);
-			setHasInitialized(true);
 		}
-	}, [playgroundOptions, hasInitialized]);
+	}, [playgroundOptions]);
 
 	// Filter events by selected playground IDs
 	const filteredEventIds = useMemo(() => {
