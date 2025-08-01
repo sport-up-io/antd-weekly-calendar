@@ -59,6 +59,7 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
   setStartWeek,
   weekStartsOn = 1,
   usaCalendar = false,
+  filterComponent,
 }) => {
   return (
     <>
@@ -78,6 +79,7 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
           style={{
             display: 'flex',
             justifyContent: 'space-between',
+            alignItems: 'center',
           }}
         >
           <div style={{ display: 'flex', marginRight: '20px' }}>
@@ -103,6 +105,11 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
               </Button>
             </div>
           </div>
+          {filterComponent && (
+            <div style={{ marginLeft: '20px' }}>
+              {filterComponent}
+            </div>
+          )}
         </Col>
         <Col>
           <DatePicker

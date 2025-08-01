@@ -10,6 +10,22 @@ export interface GenericEvent {
   originalEndTime?: Date; // For multi-day events, stores original end time
 }
 
+export interface FilterOption {
+  label: string;
+  value: string | number;
+  emoji?: string;
+  desc?: string;
+  [key: string]: any;
+}
+
+export interface FilterComponentProps {
+  options: FilterOption[];
+  selectedValues?: (string | number)[];
+  onChange?: (values: (string | number)[]) => void;
+  placeholder?: string;
+  style?: React.CSSProperties;
+}
+
 export interface BaseCalendarProps<T extends GenericEvent = GenericEvent> {
   onEventClick?: (e: T) => any | undefined;
   onSelectDate?: (e: Date) => any | undefined;
@@ -29,6 +45,8 @@ export interface CalendarContainerProps<T extends GenericEvent = GenericEvent>
   value?: Date;
 
   currentDate?: Date;
+  filterComponent?: React.ReactNode;
+  filteredEventIds?: (string | number)[];
 }
 
 export interface CalendarBodyProps<T extends GenericEvent = GenericEvent>
@@ -90,4 +108,5 @@ export interface CalendarHeaderProps {
   setStartWeek: React.Dispatch<React.SetStateAction<Date>>;
   weekStartsOn?: 0 | 1;
   usaCalendar?: boolean;
+  filterComponent?: React.ReactNode;
 }
