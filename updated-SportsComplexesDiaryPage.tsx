@@ -107,10 +107,13 @@ const SportsComplexesDiaryPage: FunctionComponent<SportsComplexesDiaryPageProps>
 	const playgroundFilter = (
 		<FilterSelect
 			options={playgroundOptions}
+			{...(selectedPlaygroundIds.length > 0 
+				? { selectedValues: selectedPlaygroundIds }
+				: { defaultValue: playgroundOptions.length > 0 ? [playgroundOptions[0].value] : [] }
+			)}
 			onChange={handlePlaygroundFilterChange}
 			placeholder="Filter by playground"
 			style={{ width: '250px' }}
-			defaultValue={playgroundOptions.length > 0 ? [playgroundOptions[0].value] : []}
 		/>
 	);
 
