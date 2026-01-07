@@ -92,6 +92,7 @@ tag:create:
 release:create:
   extends: .release:create
   stage: 🔖 Versioning
+  needs: ['gitlab:npmrc']
 
 # #############################################################################
 # ## ANALYSE
