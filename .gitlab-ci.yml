@@ -16,6 +16,7 @@ include:
 
 stages:
   - ⚙️ Config
+  - 🔑 Authentication
   - 🛠️ Build
   - 🧪 Test
   - 🔖 Versioning
@@ -25,12 +26,12 @@ variables:
   NEED_ENV: false
 
 # #############################################################################
-# ## BUILD
+# ## AUTHENTICATION
 # #############################################################################
 
 gitlab:npmrc:
   extends: .gitlab:npmrc
-  stage: ⚙️ Config
+  stage: 🔑 Authentication
   only:
     - main
     - tags
@@ -45,26 +46,13 @@ node:install:
   needs: ['gitlab:npmrc']
   only:
     - main
-    - tags
-  artifacts:
-    paths:
-      - .env
-      - node_modules
-      - .npmrc
 
 node:build:
   extends: .node:build
   stage: 🛠️ Build
   needs: ['node:install']
-  artifacts:
-    paths:
-      - .env
-      - node_modules
-      - .npmrc
-      - dist
   only:
     - main
-    - tags
 
 # #############################################################################
 # ## TEST
