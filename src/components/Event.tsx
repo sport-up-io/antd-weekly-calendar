@@ -42,7 +42,7 @@ export const EventBlock = <T extends GenericEvent>({
   }, [isClicked]);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
 
     if (isClicked) {
       timer = setTimeout(() => {
