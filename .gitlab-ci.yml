@@ -34,7 +34,6 @@ gitlab:npmrc:
   stage: 🔑 Authentication
   only:
     - main
-    - tags
 
 # #############################################################################
 # ## BUILD
