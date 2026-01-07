@@ -19,7 +19,6 @@ stages:
   - 🛠️ Build
   - 🧪 Test
   - 🔖 Versioning
-  - 🚀 Publish
   - 🔬 Analyse
 
 variables:
@@ -39,8 +38,8 @@ gitlab:npmrc:
 # ## BUILD
 # #############################################################################
 
-node:yarn:install:
-  extends: .node:yarn:install
+node:install:
+  extends: .node:install
   stage: 🛠️ Build
   only:
     - main
@@ -54,7 +53,7 @@ node:yarn:install:
 node:build:
   extends: .node:build
   stage: 🛠️ Build
-  needs: ['node:yarn:install']
+  needs: ['node:install']
   artifacts:
     paths:
       - .env
@@ -72,7 +71,7 @@ node:build:
 node:test:
   extends: .node:test
   stage: 🧪 Test
-  needs: ['node:yarn:install']
+  needs: ['node:install']
   only:
     - main
 
@@ -82,20 +81,17 @@ node:test:
 
 tag:create:
   extends: .tag:create
+  image: node:22-alpine
   stage: 🔖 Versioning
+  needs: ['node:build', 'node:test']
+  variables:
+    FILE_VERSION_PATH: './package.json'
+    TAG: ''
+    ON_TAG_CREATED: 'npm publish'
 
 release:create:
   extends: .release:create
   stage: 🔖 Versioning
-
-# #############################################################################
-# ## PUBLISH
-# #############################################################################
-
-node:publish:
-  extends: .node:publish
-  stage: 🚀 Publish
-  needs: ['node:build']
 
 # #############################################################################
 # ## ANALYSE
