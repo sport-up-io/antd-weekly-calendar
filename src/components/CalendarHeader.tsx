@@ -49,7 +49,7 @@ const MonthName: React.FunctionComponent<MonthNameProps> = ({
       >
         {getMonthName()}
       </div>
-      <Tag>Week {getWeek(startWeek, { weekStartsOn })}</Tag>
+      <Tag>Semaine {getWeek(startWeek, { weekStartsOn })}</Tag>
     </div>
   );
 };
