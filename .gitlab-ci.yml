@@ -32,6 +32,7 @@ gitlab:npmrc:
   extends: .gitlab:npmrc
   stage: ⚙️ Config
   only:
+    - main
     - tags
 
 # #############################################################################
@@ -41,6 +42,7 @@ gitlab:npmrc:
 node:install:
   extends: .node:install
   stage: 🛠️ Build
+  needs: ['gitlab:npmrc']
   only:
     - main
     - tags
