@@ -8,6 +8,7 @@ import {
   getDayHoursEvents,
   isCurentHour,
 } from './utils';
+import { ColumnsType, ColumnType } from 'antd/es/table';
 
 const { useBreakpoint } = Grid;
 
@@ -57,22 +58,13 @@ function Calendar<T extends GenericEvent>({
     dataIndex: 'hour',
     key: 'hour',
     width: screens.xs ? 50 : 1,
-    render: (hour: string, {}, id: number) => {
-      return {
-        props: {
-          style: {
-            width: screens.xs ? '30%' : '10%',
-            fontSize: fontSize,
-          },
-        },
-        children:
-          SCROLL_TO_ROW === id ? (
-            <div ref={rowRef}>{hour}</div>
-          ) : (
-            <div>{hour}</div>
-          ),
-      };
-    },
+    onCell: (data: any, index?: number) => ({
+      style: {
+        width: screens.xs ? '30%' : '10%',
+        fontSize: fontSize,
+      },
+      ref: SCROLL_TO_ROW === index ? rowRef : undefined,
+    }),
   };
 
   const dayColumns = createDayColumns(
