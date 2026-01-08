@@ -76,7 +76,7 @@ tag:create:
   variables:
     FILE_VERSION_PATH: './package.json'
     TAG: ''
-    ON_TAG_CREATED: 'npm publish'
+    ON_TAG_CREATED: 'npm prune --production && npm publish'
 
 release:create:
   extends: .release:create
