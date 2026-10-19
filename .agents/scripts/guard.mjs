@@ -32,7 +32,7 @@ const SECRET_PATHS = [
 	/(^|\/)\.?credentials(\.json)?(\/|$)/,
 	/(^|\/)(googleservice-info\.plist|google-services\.json|\.npmrc)$/,
 	/\.(pem|p8|p12|pfx|jks|keystore)$/,
-	/(^|\/)(certs|\.db_data|\.appsmith_stacks|\.ssh)(\/|$)/,
+	/(^|\/)(certs|\.db_data|\.appsmith_stacks|\.ssh|\.sportup)(\/|$)/,
 	/(^|\/)id_(rsa|ecdsa|ed25519)/,
 ];
 
@@ -42,7 +42,8 @@ const GENERATED_PATHS = [
 	/(^|\/)(dist|node_modules|coverage|\.next|\.expo|\.nyc_output)\//,
 	/(^|\/)\.claude\/(rules|skills)\//,
 	/(^|\/)\.claude\/settings\.json$/,
-	/(^|\/)\.agents\/(hooks\.json$|scripts\/)/,
+	/(^|\/)\.agents\/(hooks\.json$|mcp_config\.json$|scripts\/)/,
+	/(^|\/)\.mcp\.json$/,
 	/(^|\/)(package-lock\.json|yarn\.lock)$/,
 ];
 const SHARED_SOURCE = /(^|\/)sportup-core\/\.agents\/shared\//;
@@ -60,7 +61,8 @@ const SECRET_VALUES = [
 
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1', 'host.docker.internal']);
 const SAFE_DELETE_TARGETS = new Set(['node_modules', 'dist', 'build', 'coverage', '.next', '.expo', '.nyc_output', '.turbo', 'tmp', 'scratch']);
-const DATABASE_TOOLS = /\b(hasura|psql|pg_dump|pg_restore|pgcli)\b/i;
+/** Client de base lancé comme programme (en tête de sous-commande), pas un simple chemin `hasura/…`. */
+const DATABASE_TOOLS = /(^|[;&|(]\s*)(npx\s+)?(hasura|psql|pg_dump|pg_restore|pgcli)(\.exe)?\s/im;
 const NETWORK_TOOLS = /\b(curl|wget|iwr|irm|invoke-webrequest|invoke-restmethod|http|xh|nc|ncat|telnet)\b/i;
 const PIPE_TO_SHELL = [/\|\s*(sh|bash|zsh|pwsh|powershell|iex)\b/i, /\binvoke-expression\b/i, /\biex\s*\(/i];
 const CHECKED_FILE = /\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$/i;
@@ -164,7 +166,7 @@ function remoteHosts(command) {
 		.map((token, index) => hostOf(token, tokens[index - 1], isDatabase))
 		.filter(Boolean)
 		.map((host) => host.replace(/:\d+$/, '').replace(/^\[/, '').replace(/\]$/, '').toLowerCase())
-		.filter((host) => !LOCAL_HOSTS.has(host));
+		.filter((host) => /^[\w.-]+$/.test(host) && !host.startsWith('-') && !LOCAL_HOSTS.has(host));
 }
 
 function isRecursiveDelete(program, tokens) {

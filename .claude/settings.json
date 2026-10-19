@@ -6,6 +6,7 @@
 		"DISABLE_FEEDBACK_COMMAND": "1",
 		"CLAUDE_CODE_DISABLE_FEEDBACK_SURVEY": "1"
 	},
+	"enableAllProjectMcpServers": true,
 	"permissions": {
 		"disableBypassPermissionsMode": "disable",
 		"deny": [
@@ -32,6 +33,13 @@
 			"Read(**/.appsmith_stacks/**)",
 			"Read(~/.ssh/**)",
 			"Read(~/.claude/.credentials.json)",
+			"Read(~/.sportup/**)",
+			"mcp__stripe__send_money",
+			"mcp__stripe__transfer_money",
+			"mcp__stripe__convert_currency",
+			"mcp__stripe__setup_recipient",
+			"mcp__stripe__atlas_company_formation",
+			"mcp__stripe__send_stripe_feedback",
 			"Edit(**/generated/**)",
 			"Edit(**/dist/**)",
 			"Edit(**/node_modules/**)",
@@ -47,6 +55,8 @@
 			"PowerShell(Get-ChildItem env:*)"
 		],
 		"ask": [
+			"mcp__stripe__stripe_api_write",
+			"mcp__expo__*",
 			"Bash(git commit *)",
 			"Bash(git push *)",
 			"Bash(git merge *)",
