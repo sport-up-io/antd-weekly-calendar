@@ -12,8 +12,11 @@ description: Use when writing a git commit message, creating a branch, or prepar
 ```
 <type>(<scope optionnel>): <gitmoji> <description en français, à l'impératif, sans point final>
 
-<corps optionnel : le pourquoi, en français, lignes de 100 caractères max>
+- <modification concrète et sa raison, en français>
+- <2 à 6 puces, une idée par puce, lignes de 100 caractères max>
 ```
+
+Le hook git `commit-msg` installé par `agents:sync` (`.agents/scripts/commit-msg.mjs`) réécrit chaque message dans ce format à partir du diff, quel que soit l'outil qui commite. Le désactiver ponctuellement : `SPORTUP_COMMIT_AI=0 git commit …`.
 
 | Type | Gitmoji | Usage |
 | --- | --- | --- |
@@ -34,11 +37,13 @@ Cas particuliers : `feat(db): 🗃️ …` pour une migration Hasura, `fix: 🚑
 Exemples :
 
 ```
-feat(nominations): ✨ ajoute le workflow d'ajout de nomination
 fix(bookings): 🐛 empêche l'annulation d'une réservation déjà commencée
-feat(db): 🗃️ ajoute la colonne canNominate à la vue bookingScore
-build: 📦️ monte @sportup/core en 1.6.61
+
+- ajoute la vérification de la date de début dans l'activity `verifyBookingCancelable`
+- renvoie l'erreur `BOOKING_ALREADY_STARTED` traduite dans l'app et le back-office
 ```
+
+Autres premières lignes : `feat(nominations): ✨ ajoute le workflow d'ajout de nomination`, `feat(db): 🗃️ ajoute la colonne canNominate à la vue bookingScore`, `build: 📦️ monte @sportup/core en 1.6.61`.
 
 ## Règles
 

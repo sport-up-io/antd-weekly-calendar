@@ -1,0 +1,17 @@
+{
+	"sportup-guard": {
+		"PreToolUse": [
+			{
+				"matcher": "^(run_command|view_file|grep_search|write_to_file|replace_file_content|multi_replace_file_content)$",
+				"hooks": [{"type": "command", "command": "node .agents/scripts/guard.mjs pre --agy", "timeout": 10}]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "^(write_to_file|replace_file_content|multi_replace_file_content)$",
+				"hooks": [{"type": "command", "command": "node .agents/scripts/guard.mjs post --agy", "timeout": 10}]
+			}
+		],
+		"Stop": [{"type": "command", "command": "node .agents/scripts/guard.mjs stop --agy", "timeout": 300}]
+	}
+}
