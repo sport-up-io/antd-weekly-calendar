@@ -30,7 +30,7 @@ Premier setup d'un poste :
 
 ```bash
 cd hasura && npm run sync:local
-cd ../sportup-core && npm run setup:local       # install, toutes les générations, build, copie dans les apps
+cd ../sportup-core && npm run setup:local       # install, toutes les générations, build, copie dans les apps, config agents et MCP du poste
 cd ../lockerflow && npm install && npm run infra:up
 cd ../sport-up && npm install && npm run core:local
 cd ../sportup-pro && npm install && npm run core:local

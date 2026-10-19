@@ -6,3 +6,7 @@ dist
 .npmrc
 
 *storybook.log
+
+# Config MCP propre au poste, générée par `npm run agents:sync` dans sportup-core
+.mcp.json
+.agents/mcp_config.json
