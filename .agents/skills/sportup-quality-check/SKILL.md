@@ -12,7 +12,7 @@ description: Use before declaring any coding task done in a Sport Up TypeScript 
 | Repo | Commandes obligatoires |
 | --- | --- |
 | `sportup-core` | `npm run typecheck && npm test && npm run build` |
-| `sport-up` | `npm run check && npm test` (`check` inclut `tsc`, traductions, métadonnées, enums, version de core, expo-doctor) |
+| `sport-up` | `npm run check && npm test` (`check` inclut `tsc`, version de core, expo-doctor et les scripts de `checks/` : traductions, textes en dur, architecture, tailles, contrats de plateforme, métadonnées, enums). `npm test` exige `jest-expo` : s'il n'est pas installé, le signaler sans contourner. |
 | `sportup-pro` | `npm run typecheck && npm run check` |
 | `lockerflow` | `npm run check && npm test` |
 | `antd-weekly-calendar` | `npm run build && npx vitest run` |

@@ -27,7 +27,10 @@ const requireEnv = (name: string): string => {
 export const STRIPE_SECRET_KEY = requireEnv('STRIPE_SECRET_KEY');
 ```
 
-- Types d'entités : toujours ceux de `@sportup/core` (`Game`, `Booking`, `User`…), générés depuis Hasura. Ne jamais redéclarer une entité. Pour un sous-ensemble, dériver : `Pick<Game, 'id' | 'isPrivate'>`.
+- Types d'entités : toujours ceux de `@sportup/core` (`Game`, `Booking`, `User`…), générés depuis Hasura. Ne jamais redéclarer une entité.
+- Précision des sous-ensembles : `Pick<Game, 'timeSlot'>` garde **tout** `timeSlot`, ce n'est pas assez précis. Une fonction déclare exactement les champs qu'elle lit, sous-objets compris :
+  - règle de `@sportup/core` : type d'entrée structurel exporté (`BookingCancelableInput`), voir la rule `core-library` ;
+  - donnée lue par un front : type déduit de la sélection (`Selected<Game, typeof gameCardSelection>` dans sport-up), jamais l'entité complète.
 - Types d'entrée et de sortie des Actions : `XxxInput` et `XxxOutput` de `@sportup/core`. Ne jamais les réécrire.
 - Enums métier : types `Xxx_enum` et objets `Xxx_values` de `@sportup/core`. Pas de nouvel `enum` TypeScript ; pour une liste locale, `const XXX = ['a', 'b'] as const` et `type Xxx = (typeof XXX)[number]`.
 - États : union discriminée plutôt que booléens combinés.
