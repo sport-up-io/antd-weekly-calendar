@@ -12,12 +12,19 @@ description: Use before declaring any coding task done in a Sport Up TypeScript 
 | Repo | Commandes obligatoires |
 | --- | --- |
 | `sportup-core` | `npm run typecheck && npm test && npm run build` |
-| `sport-up` | `npm run check && npm test` (`check` inclut `tsc`, version de core, expo-doctor et les scripts de `checks/` : traductions, textes en dur, architecture, tailles, contrats de plateforme, métadonnées, enums). `npm test` exige `jest-expo` : s'il n'est pas installé, le signaler sans contourner. |
+| `sport-up` | `npm run check && npm test` (`check` inclut `tsc`, version de core, expo-doctor et les scripts de `checks/` : traductions, clés absentes ou inutilisées, textes en dur, architecture, tailles, contrats de plateforme, métadonnées, enums, ESLint). `npm test` exige `jest-expo` : s'il n'est pas installé, le signaler sans contourner. |
 | `sportup-pro` | `npm run typecheck && npm run check` |
 | `lockerflow` | `npm run check && npm test` |
 | `antd-weekly-calendar` | `npm run build && npx vitest run` |
 
 `npm run check` vérifie aussi que `@sportup/core` installé est la dernière version publiée. En développement local avec une copie de core non publiée, cette étape échoue : le signaler sans la contourner.
+
+### Baselines de sport-up (`checks/baseline/`)
+
+Les checks en cliquet tolèrent l'existant non conforme inscrit dans `checks/baseline/<check>.json` et échouent sur toute nouvelle violation ou sur un fichier qui empire. Une violation corrigée sort seule de la baseline : committer ce fichier modifié avec le code.
+
+- Une régression se corrige dans le code. **Jamais** `npm run check:baseline` pour la faire passer sans l'accord explicite de l'utilisateur.
+- Un fichier modifié substantiellement doit sortir de la baseline (rule 6 de la carte du workspace : aligner ce qu'on touche).
 
 Si une commande échoue, corriger puis relancer. Ne jamais déclarer la tâche terminée avec une commande en échec : rapporter l'échec tel quel.
 

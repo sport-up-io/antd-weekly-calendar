@@ -72,5 +72,6 @@ type LoadState<T> = {status: 'loading'} | {status: 'error'; error: SportUpError}
 ## Commentaires
 
 - JSDoc en français au-dessus de toute fonction exportée non triviale : ce qu'elle fait, pourquoi, et ses cas limites.
-- Commentaire dans le corps seulement pour expliquer un **pourquoi** non évident. Pas de paraphrase du code.
+- Un commentaire n'existe que s'il aide à comprendre **le code juste en dessous** : un pourquoi non évident, une contrainte qui s'y applique. Pas de paraphrase du code.
+- Jamais de commentaire sur ce qui est absent, retiré ou différent d'avant (« sans tel champ », « on ne fait plus… », « contrairement à l'ancienne version ») : il décrit l'historique, pas le code, et sème le doute au relecteur. L'historique va dans le message de commit.
 - Pas de code commenté : le supprimer, git le garde.
