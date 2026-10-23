@@ -1,77 +1,81 @@
 import { LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { Button, Col, Row, Tag } from 'antd';
-import { addWeeks, endOfWeek, getMonth, getWeek, startOfWeek } from 'date-fns';
-import React from 'react';
+import { addWeeks, getWeek, startOfWeek } from 'date-fns';
+import type { CSSProperties, ReactNode } from 'react';
 
-import DatePicker from './DatePicker';
-import { createLocaleFormatter } from './localeConfig';
-import { CalendarHeaderProps } from './types';
+import { DatePicker } from './DatePicker';
+import { getLocaleFormatter } from './localeConfig';
+import type { WeekStartsOn } from './types';
+import { getWeekMonthLabel } from './utils';
 
-interface MonthNameProps {
-  startWeek: Date;
-  weekStartsOn?: 0 | 1;
-  usaCalendar?: boolean;
-}
+const GAP = '10px';
+const MARGIN_BOTTOM = '20px';
 
-const MonthName: React.FunctionComponent<MonthNameProps> = ({
-  startWeek,
-  weekStartsOn = 1,
-  usaCalendar = false,
-}) => {
-  const locale = createLocaleFormatter(usaCalendar);
-
-  const getMonthName = () => {
-    const endOfWeekDate = endOfWeek(startWeek, { weekStartsOn });
-
-    if (getMonth(endOfWeekDate) == getMonth(startWeek)) {
-      return locale.formatDate(startWeek, 'MMM');
-    }
-
-    return (
-      locale.formatDate(startWeek, 'MMM') +
-      '-' +
-      locale.formatDate(endOfWeekDate, 'MMM')
-    );
-  };
-
-  const belowButtonPadding = '4px 15px';
-
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', maxHeight: '25px' }}>
-      <div
-        style={{
-          fontSize: '16px',
-          fontWeight: 500,
-          marginBottom: 0,
-          marginRight: '10px',
-          padding: belowButtonPadding,
-        }}
-      >
-        {getMonthName()}
-      </div>
-      <Tag>Semaine {getWeek(startWeek, { weekStartsOn })}</Tag>
-    </div>
-  );
+const MONTH_ROW_STYLE: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  marginBottom: MARGIN_BOTTOM,
+  flexWrap: 'wrap',
+  gap: GAP,
+};
+const NAVIGATION_ROW_STYLE: CSSProperties = {
+  marginBottom: MARGIN_BOTTOM,
+  flexWrap: 'wrap',
+  gap: GAP,
+};
+const NAVIGATION_COL_STYLE: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  gap: GAP,
+};
+const ARROWS_STYLE: CSSProperties = { display: 'flex', gap: GAP };
+const FILTERS_COL_STYLE: CSSProperties = {
+  display: 'flex',
+  gap: GAP,
+  flexWrap: 'wrap',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+};
+const DATE_PICKER_STYLE: CSSProperties = { minWidth: '150px' };
+const MONTH_NAME_STYLE: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  maxHeight: '25px',
+};
+const MONTH_LABEL_STYLE: CSSProperties = {
+  fontSize: '16px',
+  fontWeight: 500,
+  marginBottom: 0,
+  marginRight: GAP,
+  padding: '4px 15px',
 };
 
-export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
+export interface CalendarHeaderProps {
+  startWeek: Date;
+  setStartWeek: (startWeek: Date) => void;
+  weekStartsOn?: WeekStartsOn;
+  usaCalendar?: boolean;
+  filterComponent?: ReactNode;
+}
+
+/**
+ * En-tête du calendrier : mois et numéro de la semaine affichée, navigation
+ * (semaine courante, précédente, suivante, choix d'une semaine) et filtres
+ * fournis par le parent.
+ */
+export function CalendarHeader({
   startWeek,
   setStartWeek,
   weekStartsOn = 1,
   usaCalendar = false,
   filterComponent,
-}) => {
+}: Readonly<CalendarHeaderProps>) {
+  const getCurrentWeek = () => startOfWeek(new Date(), { weekStartsOn });
+
   return (
     <>
-      <Row
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          marginBottom: '20px',
-          flexWrap: 'wrap',
-          gap: '10px',
-        }}
-      >
+      <Row style={MONTH_ROW_STYLE}>
         <div style={{ alignSelf: 'center' }}>
           <MonthName
             startWeek={startWeek}
@@ -81,31 +85,12 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
         </div>
       </Row>
 
-      <Row
-        justify="space-between"
-        style={{
-          marginBottom: '20px',
-          flexWrap: 'wrap',
-          gap: '10px',
-        }}
-      >
-        <Col
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            gap: '10px',
-          }}
-        >
-          <Button
-            onClick={() =>
-              setStartWeek(startOfWeek(new Date(), { weekStartsOn }))
-            }
-          >
+      <Row justify="space-between" style={NAVIGATION_ROW_STYLE}>
+        <Col style={NAVIGATION_COL_STYLE}>
+          <Button onClick={() => setStartWeek(getCurrentWeek())}>
             Aujourd'hui
           </Button>
-
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={ARROWS_STYLE}>
             <Button onClick={() => setStartWeek(addWeeks(startWeek, -1))}>
               <LeftOutlined />
             </Button>
@@ -115,16 +100,8 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
           </div>
         </Col>
 
-        <Col
-          style={{
-            display: 'flex',
-            gap: '10px',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-          }}
-        >
-          {filterComponent && filterComponent}
+        <Col style={FILTERS_COL_STYLE}>
+          {filterComponent}
           <DatePicker
             onChange={(date) => {
               if (date) {
@@ -132,11 +109,34 @@ export const CalendarHeader: React.FunctionComponent<CalendarHeaderProps> = ({
               }
             }}
             picker="week"
-            defaultValue={startOfWeek(new Date(), { weekStartsOn })}
-            style={{ minWidth: '150px' }}
+            defaultValue={getCurrentWeek()}
+            style={DATE_PICKER_STYLE}
           />
         </Col>
       </Row>
     </>
   );
-};
+}
+
+interface MonthNameProps {
+  startWeek: Date;
+  weekStartsOn: WeekStartsOn;
+  usaCalendar: boolean;
+}
+
+function MonthName({
+  startWeek,
+  weekStartsOn,
+  usaCalendar,
+}: Readonly<MonthNameProps>) {
+  const locale = getLocaleFormatter(usaCalendar);
+
+  return (
+    <div style={MONTH_NAME_STYLE}>
+      <div style={MONTH_LABEL_STYLE}>
+        {getWeekMonthLabel(startWeek, weekStartsOn, locale)}
+      </div>
+      <Tag>Semaine {getWeek(startWeek, { weekStartsOn })}</Tag>
+    </div>
+  );
+}

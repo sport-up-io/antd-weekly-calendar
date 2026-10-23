@@ -1,13 +1,78 @@
 import { add, getDay } from 'date-fns';
-import React, { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
+import type { CSSProperties, MouseEvent } from 'react';
 
-import { createLocaleFormatter } from './localeConfig';
-import { EventBlockProps, GenericEvent } from './types';
-import { sizeEventBox } from './utils';
+import { getLocaleFormatter } from './localeConfig';
+import type { GenericEvent } from './types';
+import { useEventExpansion } from './useEventExpansion';
+import { getEventBoxLayout, sizeEventBox } from './utils';
 
-const BOX_POSITION_OFFSET = 26;
-const TURQUOISE = '#36CFC9';
+const DEFAULT_BACKGROUND_COLOR = '#36CFC9';
+const SMALL_EVENT_MAX_SIZE = 30;
+const TIME_FORMAT = 'HH:mm';
 
+// Réinitialise le style natif du bouton : contenu en haut à gauche, sans marge.
+const BOX_STYLE: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'flex-start',
+  alignItems: 'stretch',
+  padding: 0,
+  margin: 0,
+  font: 'inherit',
+  textAlign: 'left',
+  position: 'absolute',
+  overflow: 'hidden',
+  cursor: 'pointer',
+  borderWidth: '0.01rem',
+  borderStyle: 'solid',
+  borderColor: '#141414',
+  borderRadius: '5px',
+  transition: 'all 0.3s ease',
+  userSelect: 'none',
+  WebkitUserSelect: 'none',
+  MozUserSelect: 'none',
+  msUserSelect: 'none',
+};
+
+const CONTENT_STYLE: CSSProperties = {
+  display: 'block',
+  color: 'white',
+  fontSize: '12px',
+  paddingLeft: '5px',
+  paddingTop: '4px',
+};
+
+const SMALL_CONTENT_STYLE: CSSProperties = {
+  color: 'white',
+  fontSize: '12px',
+  paddingLeft: '0',
+  textAlign: 'center',
+  display: 'flex',
+  flexDirection: 'row',
+  margin: 0,
+  lineHeight: '0.9',
+};
+
+const TITLE_STYLE: CSSProperties = { fontWeight: 500 };
+
+export interface EventBlockProps<T extends GenericEvent> {
+  event: T;
+  index: number;
+  /** Heure de la ligne, rapportée au premier jour de la semaine. */
+  hour: Date;
+  /** Nombre d'évènements dans la même cellule. */
+  events: number;
+  onEventClick?: (event: T) => void;
+  usaCalendar?: boolean;
+}
+
+const preventContextMenu = (event: MouseEvent) => event.preventDefault();
+
+/**
+ * Évènement placé dans sa cellule horaire. Quand la cellule en contient
+ * plusieurs, un premier clic le déplie et le second appelle `onEventClick`.
+ */
 export const EventBlock = <T extends GenericEvent>({
   event,
   index,
@@ -15,136 +80,62 @@ export const EventBlock = <T extends GenericEvent>({
   events,
   onEventClick,
   usaCalendar = false,
-}: EventBlockProps<T>) => {
-  const [isClicked, setIsClicked] = useState(false);
-  const eventRef = useRef<HTMLDivElement>(null);
-  const locale = createLocaleFormatter(usaCalendar);
+}: Readonly<EventBlockProps<T>>) => {
+  const eventRef = useRef<HTMLButtonElement>(null);
+  const { isExpanded, expand } = useEventExpansion(eventRef);
+  const locale = getLocaleFormatter(usaCalendar);
 
-  const getEventDay = getDay(new Date(event.endTime));
-  const fitHourToDate = add(hour, { days: locale.getDateOffset(getEventDay) });
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        eventRef.current &&
-        !eventRef.current.contains(event.target as Node)
-      ) {
-        setIsClicked(false);
-      }
-    };
-
-    if (isClicked) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isClicked]);
-
-  useEffect(() => {
-    let timer: ReturnType<typeof setTimeout>;
-
-    if (isClicked) {
-      timer = setTimeout(() => {
-        setIsClicked(false);
-      }, 1500);
-    }
-
-    return () => {
-      if (timer) {
-        clearTimeout(timer);
-      }
-    };
-  }, [isClicked]);
-
-  const boxStyle = sizeEventBox(event, fitHourToDate);
-
-  const isSmallEvent = boxStyle.boxSize <= 30;
-
-  // Calculate left position to avoid spacing between events (up to 4 events)
-  const boxLeftPosition =
-    events >= 4 ? (93 / events) * index : BOX_POSITION_OFFSET * index; // Calculate original width and new left position when expanded
-  const originalWidth = 93 - boxLeftPosition;
-  const expandedWidth = 93;
-  const newLeftPosition = isClicked
-    ? boxLeftPosition - (expandedWidth - originalWidth)
-    : boxLeftPosition;
+  const eventHour = add(hour, {
+    days: locale.getDateOffset(getDay(new Date(event.endTime))),
+  });
+  const { boxPosition, boxSize } = sizeEventBox(event, eventHour);
+  const { left, width } = getEventBoxLayout({
+    index,
+    eventCount: events,
+    isExpanded,
+  });
 
   const handleClick = () => {
-    if (isClicked || events === 1) {
-      if (onEventClick) {
-        onEventClick(event);
-      }
-    } else {
-      setIsClicked(true);
+    if (isExpanded || events === 1) {
+      onEventClick?.(event);
+      return;
     }
+    expand();
   };
 
   return (
-    <>
-      <div
-        ref={eventRef}
-        style={{
-          display: 'block',
-          height: boxStyle.boxSize + '%',
-          width: isClicked ? expandedWidth + '%' : originalWidth + '%',
-          position: 'absolute',
-          top: boxStyle.boxPosition + '%',
-          overflow: 'hidden',
-          cursor: 'pointer',
-          left: newLeftPosition + '%',
-          borderWidth: '0.01rem',
-          borderStyle: 'solid',
-          borderColor: '#141414',
-          borderRadius: '5px',
-          backgroundColor: event.backgroundColor
-            ? event.backgroundColor
-            : TURQUOISE,
-          zIndex: isClicked ? 2 : 1,
-          transition: 'all 0.3s ease',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          MozUserSelect: 'none',
-          msUserSelect: 'none',
-        }}
-        onClick={handleClick}
-        onContextMenu={(e) => e.preventDefault()}
-        key={index}
+    <button
+      ref={eventRef}
+      type="button"
+      style={{
+        ...BOX_STYLE,
+        height: `${boxSize}%`,
+        width: `${width}%`,
+        top: `${boxPosition}%`,
+        left: `${left}%`,
+        backgroundColor: event.backgroundColor || DEFAULT_BACKGROUND_COLOR,
+        zIndex: isExpanded ? 2 : 1,
+      }}
+      onClick={handleClick}
+      onContextMenu={preventContextMenu}
+    >
+      <span
+        style={
+          boxSize <= SMALL_EVENT_MAX_SIZE ? SMALL_CONTENT_STYLE : CONTENT_STYLE
+        }
       >
-        <div
-          style={
-            isSmallEvent
-              ? {
-                  color: 'white',
-                  fontSize: '12px',
-                  paddingLeft: '0',
-                  textAlign: 'center',
-                  display: 'flex',
-                  flexDirection: 'row',
-                  margin: 0,
-                  lineHeight: '0.9',
-                }
-              : {
-                  color: 'white',
-                  fontSize: '12px',
-                  paddingLeft: '5px',
-                  paddingTop: '4px',
-                }
-          }
-        >
-          <span style={{ fontWeight: 500 }}>{event.title}</span>
-          <br />
-          {locale.formatDate(
-            new Date(event.originalStartTime || event.startTime),
-            'HH:mm'
-          )}
-          {' - '}
-          {locale.formatDate(
-            new Date(event.originalEndTime || event.endTime),
-            'HH:mm'
-          )}
-        </div>
-      </div>
-    </>
+        <span style={TITLE_STYLE}>{event.title}</span>
+        <br />
+        {locale.formatDate(
+          new Date(event.originalStartTime ?? event.startTime),
+          TIME_FORMAT
+        )}
+        {' - '}
+        {locale.formatDate(
+          new Date(event.originalEndTime ?? event.endTime),
+          TIME_FORMAT
+        )}
+      </span>
+    </button>
   );
 };

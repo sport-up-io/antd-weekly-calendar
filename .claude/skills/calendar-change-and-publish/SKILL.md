@@ -18,7 +18,8 @@ Repo : `antd-weekly-calendar`, puis `sportup-pro`.
 ## 2. Vérifier
 
 ```bash
-npx vitest run
+npm run lint
+npm test
 npm run build
 ```
 
@@ -37,6 +38,6 @@ Vérifier les pages `diary` et `calendar` d'un complexe. Un `npm install` dans `
 
 ## 4. Publier
 
-1. Monter `version` dans `package.json` (patch, minor ou major selon la compatibilité de l'API).
-2. Commit et merge : la CI GitLab build, teste et publie sur le registre `@sportup`. Ne jamais lancer `npm publish` soi-même.
+1. Commit et merge sur `main` : la CI GitLab build, teste et analyse. Ne pas modifier `version` dans `package.json` à la main.
+2. Sur le pipeline de `main`, lancer le job manuel `release:version:patch`, `minor` ou `major` selon la compatibilité de l'API : il commite la version et pose le tag `vX.Y.Z`, dont le pipeline publie sur le registre `@sportup`. Ne jamais lancer `npm publish` soi-même.
 3. Dans `sportup-pro` : `npm install @sportup/antd-weekly-calendar@<version>` puis `npm run check` (qui vérifie la dernière version publiée).

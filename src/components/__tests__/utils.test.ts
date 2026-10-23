@@ -1,144 +1,338 @@
-import { GenericEvent } from '../types';
-import { daysToWeekObject } from '../utils';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-// import { isSameDay, isSameWeek, eachDayOfInterval, getDay } from 'date-fns';
+import { getLocaleFormatter } from '../localeConfig';
+import type { GenericEvent, WeekObject } from '../types';
+import {
+  calculateScrollOffset,
+  daysToWeekObject,
+  getDayHoursEvents,
+  getEventBoxLayout,
+  getWeekMonthLabel,
+  isCurrentHour,
+  MIN_BOX_SIZE,
+  sizeEventBox,
+} from '../utils';
+
+const createEvent = (
+  eventId: string,
+  startTime: Date,
+  endTime: Date
+): GenericEvent => ({ eventId, startTime, endTime, title: `Event ${eventId}` });
+
+const createWeekObject = (
+  days: Partial<WeekObject<GenericEvent>>
+): WeekObject<GenericEvent> => ({
+  sunday: [],
+  monday: [],
+  tuesday: [],
+  wednesday: [],
+  thursday: [],
+  friday: [],
+  saturday: [],
+  ...days,
+});
 
 describe('daysToWeekObject', () => {
-  const startWeek = new Date('2024-08-18');
+  const sundayStartWeek = new Date(2024, 7, 18);
 
-  it('should correctly map events to the corresponding days of the week', () => {
-    const events: GenericEvent[] = [
-      {
-        eventId: '1',
-        startTime: new Date('2024-08-26T08:30:18.257Z'),
-        endTime: new Date('2024-08-26T09:30:18.257Z'),
-        title: 'Event 1',
-      },
-      {
-        eventId: '2',
-        startTime: new Date('2024-08-25T06:30:18.258Z'),
-        endTime: new Date('2024-08-25T07:30:18.258Z'),
-        title: 'Event 2',
-        backgroundColor: 'red',
-      },
-    ];
+  it('places single-day events on their day', () => {
+    const wednesday = createEvent(
+      '1',
+      new Date(2024, 7, 21, 9),
+      new Date(2024, 7, 21, 10)
+    );
+    const thursday = createEvent(
+      '2',
+      new Date(2024, 7, 22, 11),
+      new Date(2024, 7, 22, 12)
+    );
 
-    const startWeek = new Date('2024-08-18T00:00:00.000Z'); // Sunday
+    const result = daysToWeekObject([wednesday, thursday], sundayStartWeek, 0);
 
-    const expectedWeekObject = {
-      monday: [],
-      tuesday: [],
-      wednesday: [],
-      thursday: [],
-      friday: [],
-      saturday: [],
-      sunday: [],
-    };
-
-    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
-
-    expect(result).toEqual(expectedWeekObject);
+    expect(result.wednesday).toEqual([wednesday]);
+    expect(result.thursday).toEqual([thursday]);
+    expect(result.monday).toHaveLength(0);
   });
 
-  it('should correctly place single-day events into the correct days', () => {
-    const events: GenericEvent[] = [
-      {
-        eventId: '1',
-        startTime: new Date('2024-08-21T09:00:00'),
-        endTime: new Date('2024-08-21T10:00:00'),
-        title: 'Event 1'
-      },
-      {
-        eventId: '2',
-        startTime: new Date('2024-08-22T11:00:00'),
-        endTime: new Date('2024-08-22T12:00:00'),
-        title: 'Event 2'
-      },
-      {
-        eventId: '3',
-        startTime: new Date('2024-08-23T13:00:00'),
-        endTime: new Date('2024-08-23T14:00:00'),
-        title: 'Event 3'
-      },
-    ];
-    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
-    expect(result.wednesday.length).toBe(1);
-    expect(result.thursday.length).toBe(1);
-    expect(result.friday.length).toBe(1);
-    expect(result.wednesday[0].startTime).toEqual(events[0].startTime);
-    expect(result.thursday[0].startTime).toEqual(events[1].startTime);
-    expect(result.friday[0].startTime).toEqual(events[2].startTime);
+  it('keeps several events of the same day in order', () => {
+    const events = [9, 11, 13].map((hour) =>
+      createEvent(
+        `${hour}`,
+        new Date(2024, 7, 22, hour),
+        new Date(2024, 7, 22, hour + 1)
+      )
+    );
+
+    const result = daysToWeekObject(events, sundayStartWeek, 0);
+
+    expect(result.thursday).toEqual(events);
   });
 
-  it('should correctly split a multi-day event and place it into the correct days', () => {
-    const events: GenericEvent[] = [
-      {
-        eventId: '4',
-        startTime: new Date('2024-08-21T09:00:00'),
-        endTime: new Date('2024-08-23T10:00:00'),
-        title: 'Event 4'
-      },
-      {
-        eventId: '5',
-        startTime: new Date('2024-08-22T14:00:00'),
-        endTime: new Date('2024-08-24T15:00:00'),
-        title: 'Event 5'
-      },
+  it('ignores events that start outside of the week', () => {
+    const events = [
+      createEvent('1', new Date(2024, 7, 25, 8), new Date(2024, 7, 25, 9)),
+      createEvent('2', new Date(2024, 7, 26, 9), new Date(2024, 7, 26, 10)),
     ];
-    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
-    expect(result.wednesday.length).toBe(1);
-    expect(result.thursday.length).toBe(2);
-    expect(result.friday.length).toBe(2);
-    expect(result.saturday.length).toBe(1);
+
+    const result = daysToWeekObject(events, sundayStartWeek, 0);
+
+    expect(result).toEqual(createWeekObject({}));
   });
 
-  it('should handle multiple events on the same day correctly', () => {
-    const events: GenericEvent[] = [
+  it('splits a multi-day event into one part per day', () => {
+    const event = createEvent(
+      '1',
+      new Date(2024, 7, 21, 9),
+      new Date(2024, 7, 23, 10)
+    );
+
+    const result = daysToWeekObject([event], sundayStartWeek, 0);
+
+    expect(result.wednesday).toEqual([
       {
-        eventId: '6',
-        startTime: new Date('2024-08-22T09:00:00'),
-        endTime: new Date('2024-08-22T10:00:00'),
-        title: 'Event 6'
+        ...event,
+        originalStartTime: event.startTime,
+        originalEndTime: event.endTime,
+        endTime: new Date(2024, 7, 21, 23, 59, 59, 999),
       },
-      {
-        eventId: '7',
-        startTime: new Date('2024-08-22T11:00:00'),
-        endTime: new Date('2024-08-22T12:00:00'),
-        title: 'Event 7'
-      },
-      {
-        eventId: '8',
-        startTime: new Date('2024-08-22T13:00:00'),
-        endTime: new Date('2024-08-22T14:00:00'),
-        title: 'Event 8'
-      },
-    ];
-    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
-    expect(result.thursday.length).toBe(3);
-    expect(result.thursday[0].startTime).toEqual(events[0].startTime);
-    expect(result.thursday[1].startTime).toEqual(events[1].startTime);
-    expect(result.thursday[2].startTime).toEqual(events[2].startTime);
+    ]);
+    expect(result.thursday[0]).toMatchObject({
+      startTime: new Date(2024, 7, 22),
+      endTime: new Date(2024, 7, 22, 23, 59, 59, 999),
+    });
+    expect(result.friday[0]).toMatchObject({
+      startTime: new Date(2024, 7, 23),
+      endTime: event.endTime,
+      originalStartTime: event.startTime,
+    });
   });
 
-  //currently this is failing, I need to verify if there is a bug or this test doesn't make sense 
-  it.skip('should not include events that occur outside of the start week', () => {
-    const events: GenericEvent[] = [
-      {
-        eventId: '9',
-        startTime: new Date('2024-08-26T09:00:00'),
-        endTime: new Date('2024-08-26T10:00:00'),
-        title: 'Event 9'
+  it('drops the parts of a multi-day event that overflow the week', () => {
+    const event = createEvent(
+      '1',
+      new Date(2024, 7, 24, 20),
+      new Date(2024, 7, 25, 2)
+    );
+
+    const result = daysToWeekObject([event], sundayStartWeek, 0);
+
+    expect(result.saturday).toHaveLength(1);
+    expect(result.sunday).toHaveLength(0);
+  });
+
+  it('starts weeks on monday by default', () => {
+    const sunday = createEvent(
+      '1',
+      new Date(2024, 7, 25, 9),
+      new Date(2024, 7, 25, 10)
+    );
+
+    const result = daysToWeekObject([sunday], new Date(2024, 7, 19));
+
+    expect(result.sunday).toEqual([sunday]);
+  });
+});
+
+describe('getDayHoursEvents', () => {
+  const event = createEvent(
+    '1',
+    new Date(2024, 7, 21, 9, 30),
+    new Date(2024, 7, 21, 10)
+  );
+  const weekObject = createWeekObject({ wednesday: [event] });
+
+  it('creates one row per hour with the french hour format', () => {
+    const rows = getDayHoursEvents({
+      weekRange: {
+        startDate: new Date(2024, 7, 19),
+        endDate: new Date(2024, 7, 25),
       },
-      {
-        eventId: '10',
-        startTime: new Date('2024-08-25T08:00:00'),
-        endTime: new Date('2024-08-25T09:00:00'),
-        title: 'Event 10'
+      weekObject,
+    });
+
+    expect(rows).toHaveLength(24);
+    expect(rows[9]).toMatchObject({ id: 9, hour: '09:00' });
+    expect(rows[9].hourObject).toEqual(new Date(2024, 7, 19, 9));
+    expect(rows[9].Wednesday).toEqual([event]);
+    expect(rows[8].Wednesday).toEqual([]);
+    expect(rows[9].Sunday).toEqual([]);
+  });
+
+  it('uses the USA hour format and skips weekends when asked', () => {
+    const rows = getDayHoursEvents({
+      weekRange: {
+        startDate: new Date(2024, 7, 18),
+        endDate: new Date(2024, 7, 24),
       },
-    ];
-    const result = daysToWeekObject(events, startWeek, 0); // Use Sunday start
-    expect(result.monday.length).toBe(0);
-    expect(result.sunday.length).toBe(0);
+      weekObject,
+      usaCalendar: true,
+      includeWeekends: false,
+    });
+
+    expect(rows[9].hour).toBe('09 AM');
+    expect(rows[9].Wednesday).toEqual([event]);
+    expect(rows[9]).not.toHaveProperty('Sunday');
+    expect(rows[9]).not.toHaveProperty('Saturday');
+  });
+
+  it('leaves days empty without week object', () => {
+    const rows = getDayHoursEvents({
+      weekRange: {
+        startDate: new Date(2024, 7, 19),
+        endDate: new Date(2024, 7, 25),
+      },
+    });
+
+    expect(rows[0].Monday).toBeUndefined();
+  });
+});
+
+describe('sizeEventBox', () => {
+  const cellHour = new Date(2024, 7, 21, 9);
+
+  it('fills the cell with a one hour event', () => {
+    const event = createEvent('1', cellHour, new Date(2024, 7, 21, 10));
+
+    expect(sizeEventBox(event, cellHour)).toEqual({
+      boxPosition: 0,
+      boxSize: 100,
+    });
+  });
+
+  it('never goes below the minimal size', () => {
+    const event = createEvent('1', cellHour, new Date(2024, 7, 21, 9, 15));
+
+    expect(sizeEventBox(event, cellHour).boxSize).toBe(MIN_BOX_SIZE);
+  });
+
+  it('offsets an event that starts during the hour', () => {
+    const event = createEvent(
+      '1',
+      new Date(2024, 7, 21, 9, 30),
+      new Date(2024, 7, 21, 10, 30)
+    );
+
+    expect(sizeEventBox(event, cellHour).boxPosition).toBeCloseTo(50);
+  });
+
+  it('sticks to the top an event started long before the hour', () => {
+    const event = createEvent(
+      '1',
+      new Date(2024, 7, 21, 7),
+      new Date(2024, 7, 21, 10)
+    );
+
+    expect(sizeEventBox(event, cellHour).boxPosition).toBe(0);
+  });
+
+  describe('after 23:00', () => {
+    const lateHour = new Date(2024, 7, 21, 23);
+
+    it('keeps an event that fits in the cell', () => {
+      const event = createEvent(
+        '1',
+        lateHour,
+        new Date(2024, 7, 21, 23, 30)
+      );
+
+      expect(sizeEventBox(event, lateHour)).toEqual({
+        boxPosition: 0,
+        boxSize: 50,
+      });
+    });
+
+    it('shrinks an overflowing event to the remaining space', () => {
+      const event = createEvent(
+        '1',
+        new Date(2024, 7, 21, 23, 30),
+        new Date(2024, 7, 22, 0, 30)
+      );
+
+      const box = sizeEventBox(event, lateHour);
+
+      expect(box.boxPosition).toBeCloseTo(50);
+      expect(box.boxSize).toBeCloseTo(50);
+    });
+
+    it('moves up an event with too little remaining space', () => {
+      const event = createEvent(
+        '1',
+        new Date(2024, 7, 21, 23, 50),
+        new Date(2024, 7, 22, 0, 50)
+      );
+
+      expect(sizeEventBox(event, lateHour)).toEqual({
+        boxPosition: 75,
+        boxSize: 25,
+      });
+    });
+  });
+});
+
+describe('getEventBoxLayout', () => {
+  it('uses the whole width when expanded', () => {
+    expect(
+      getEventBoxLayout({ index: 2, eventCount: 3, isExpanded: true })
+    ).toEqual({ left: 0, width: 93 });
+  });
+
+  it('stacks up to three events', () => {
+    expect(
+      getEventBoxLayout({ index: 1, eventCount: 2, isExpanded: false })
+    ).toEqual({ left: 26, width: 67 });
+  });
+
+  it('shares the width from four events', () => {
+    expect(
+      getEventBoxLayout({ index: 2, eventCount: 4, isExpanded: false })
+    ).toEqual({ left: 46.5, width: 46.5 });
+  });
+});
+
+describe('getWeekMonthLabel', () => {
+  const locale = getLocaleFormatter(true);
+
+  it('shows one month when the week stays in it', () => {
+    expect(getWeekMonthLabel(new Date(2024, 7, 5), 1, locale)).toBe('Aug');
+  });
+
+  it('shows both months when the week overlaps them', () => {
+    expect(getWeekMonthLabel(new Date(2024, 7, 26), 1, locale)).toBe(
+      'Aug-Sep'
+    );
+  });
+});
+
+describe('calculateScrollOffset', () => {
+  const createElementAt = (top: number): HTMLElement => {
+    const element = document.createElement('div');
+    element.getBoundingClientRect = () => DOMRect.fromRect({ y: top });
+    return element;
+  };
+
+  it('returns the distance between the container and the row', () => {
+    expect(
+      calculateScrollOffset(createElementAt(100), createElementAt(340))
+    ).toBe(240);
+  });
+});
+
+describe('isCurrentHour', () => {
+  const now = new Date(2024, 7, 21, 9, 45);
+
+  it('is false without hour', () => {
+    expect(isCurrentHour(undefined, now)).toBe(false);
+  });
+
+  it('is true for the same hour of the same week', () => {
+    expect(isCurrentHour(new Date(2024, 7, 19, 9), now)).toBe(true);
+  });
+
+  it('is false for another hour', () => {
+    expect(isCurrentHour(new Date(2024, 7, 21, 10), now)).toBe(false);
+  });
+
+  it('is false for another week', () => {
+    expect(isCurrentHour(new Date(2024, 7, 28, 9), now)).toBe(false);
   });
 });
