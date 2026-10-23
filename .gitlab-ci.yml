@@ -24,8 +24,8 @@ stages:
   - 🔑 Authentication
   - 🛠️ Build
   - 🧪 Test
-  - 🔖 Versioning
   - 🔬 Analyse
+  - 🔖 Versioning
 
 variables:
   NEED_ENV: false
