@@ -48,7 +48,7 @@ type LoadState<T> = {status: 'loading'} | {status: 'error'; error: SportUpError}
 - Au-delà de 3 paramètres, un objet nommé : `createBooking({userId, timeSlotId, isPrivate})`.
 - Une dépendance au temps se passe en paramètre avec une valeur par défaut, pour être testable : `isBookingCancelable(profile, booking, now = DateTime.now())`.
 - Pas de paramètre booléen qui change le comportement de la fonction : deux fonctions ou un paramètre d'union nommé.
-- `async` seulement si la fonction attend quelque chose. Toujours `await` ou retourner une promesse : pas de promesse flottante.
+- `async` seulement si la fonction attend quelque chose. Toujours `await` ou retourner une promesse : pas de promesse flottante. Exception : une activity Temporal de lockerflow est toujours `async` (rule `lockerflow-activities`).
 
 ## Erreurs
 
