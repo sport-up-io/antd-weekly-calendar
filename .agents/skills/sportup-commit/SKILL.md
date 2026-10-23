@@ -1,6 +1,6 @@
 ---
 name: sportup-commit
-description: Use when writing a git commit message, creating a branch, or preparing a merge request in any Sport Up repository. Defines the Conventional Commits + gitmoji format in French and the branch flow develop → staging → main.
+description: Use when writing a git commit message, creating a branch, or preparing a merge request in any Sport Up repository. Defines the Conventional Commits + gitmoji format in French and the single-branch flow (main, merge requests, versions and tags created by CI).
 ---
 
 <!-- GÉNÉRÉ par sportup-core/scripts/sync-agents.mjs. Ne pas modifier ce fichier : modifier sa source puis relancer `npm run agents:sync` dans sportup-core. -->
@@ -54,8 +54,8 @@ Autres premières lignes : `feat(nominations): ✨ ajoute le workflow d'ajout de
 - Ne jamais committer sans que `npm run check` ou `npm run typecheck` et les tests passent (skill `sportup-quality-check`).
 - Ne jamais committer ni pousser sans demande explicite de l'utilisateur.
 
-## Branches
+## Branches et versions
 
-- `develop` : intégration. `staging` : recette. `main` : production. Les tags sont créés par la CI.
-- Branche de travail depuis `develop` : `feat/<sujet-kebab-case>` ou `fix/<sujet-kebab-case>`.
-- Merge request vers `develop`, avec : le résumé du changement, les commandes lancées (`npm run check`, `npm test`), et la mention d'une migration ou d'une montée de version de `@sportup/core` le cas échéant.
+- Une seule branche longue : `main`, déployée en develop. Branche de travail depuis `main` : `feat/<sujet-kebab-case>` ou `fix/<sujet-kebab-case>`.
+- Merge request vers `main`, dont la pipeline lance les tests sans image ni déploiement. Description : le résumé du changement, les commandes lancées (`npm run check`, `npm test`), et la mention d'une migration ou d'une montée de version de `@sportup/core` le cas échéant.
+- Version : jamais à la main. Le job manuel 🔖 Versioning (patch, minor, major) de la pipeline de `main` commite la version dans `package.json` (ou `version.json`), puis crée le tag `vX.Y.Z`. Le tag déploie staging ou publie le paquet npm ; 🚀 Production, manuel, déploie la production.

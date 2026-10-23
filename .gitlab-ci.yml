@@ -13,6 +13,11 @@ include:
   - project: sport-up-group/sportup-templates
     ref: main
     file: config-env.yml
+  # Version flow CI⚡CD : une seule branche main
+  # MR → tests, main → build et tests, 🔖 Versioning → tag vX.Y.Z → publication npm
+  - project: sport-up-group/sportup-templates
+    ref: main
+    file: version-flow.yml
 
 stages:
   - ⚙️ Config
@@ -34,6 +39,8 @@ gitlab:npmrc:
   stage: 🔑 Authentication
   only:
     - main
+    - tags
+    - merge_requests
 
 # #############################################################################
 # ## BUILD
@@ -45,6 +52,8 @@ node:install:
   needs: ['gitlab:npmrc']
   only:
     - main
+    - tags
+    - merge_requests
 
 node:build:
   extends: .node:build
@@ -52,6 +61,8 @@ node:build:
   needs: ['node:install']
   only:
     - main
+    - tags
+    - merge_requests
 
 # #############################################################################
 # ## TEST
@@ -63,20 +74,16 @@ node:test:
   needs: ['node:install']
   only:
     - main
+    - merge_requests
 
 # #############################################################################
-# ## TAG MANAGEMENT
+# ## 🔖 VERSIONING (tag : publication npm et release GitLab)
 # #############################################################################
 
-tag:create:
-  extends: .tag:create
-  image: node:22-alpine
+node:publish:
+  extends: .node:publish
   stage: 🔖 Versioning
-  needs: ['node:build', 'node:test']
-  variables:
-    FILE_VERSION_PATH: './package.json'
-    TAG: ''
-    ON_TAG_CREATED: 'npm prune --production && npm publish'
+  needs: ['node:build']
 
 release:create:
   extends: .release:create
