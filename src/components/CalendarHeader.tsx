@@ -4,7 +4,7 @@ import { addWeeks, getWeek, startOfWeek } from 'date-fns';
 import type { CSSProperties, ReactNode } from 'react';
 
 import { DatePicker } from './DatePicker';
-import { createLocaleFormatter } from './localeConfig';
+import { getLocaleFormatter } from './localeConfig';
 import type { WeekStartsOn } from './types';
 import { getWeekMonthLabel } from './utils';
 
@@ -129,7 +129,7 @@ function MonthName({
   weekStartsOn,
   usaCalendar,
 }: Readonly<MonthNameProps>) {
-  const locale = createLocaleFormatter(usaCalendar);
+  const locale = getLocaleFormatter(usaCalendar);
 
   return (
     <div style={MONTH_NAME_STYLE}>

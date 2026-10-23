@@ -3,7 +3,7 @@ import { add } from 'date-fns';
 import type { CSSProperties } from 'react';
 
 import { EventBlock } from './Event';
-import { createLocaleFormatter } from './localeConfig';
+import { getLocaleFormatter } from './localeConfig';
 import type { EventsObject, GenericEvent, WeekDateRange } from './types';
 
 export const SCROLL_TO_ROW = 6;
@@ -34,7 +34,7 @@ export function createDayColumns<T extends GenericEvent>({
   usaCalendar = false,
   fontSize,
 }: DayColumnsParams<T>): ColumnType<EventsObject<T>>[] {
-  const locale = createLocaleFormatter(usaCalendar);
+  const locale = getLocaleFormatter(usaCalendar);
 
   return locale.getDayIndices(includeWeekends).map((dayIndex) => {
     const columnDate = add(weekDates.startDate, {

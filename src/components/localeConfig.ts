@@ -40,14 +40,7 @@ export interface LocaleFormatter {
   getDateOffset: (dayIndex: number) => number;
 }
 
-/**
- * Formatage et ordre des jours du calendrier : semaine américaine (dimanche
- * en premier, heures sur 12 h, anglais) ou française (lundi en premier,
- * heures sur 24 h, français).
- */
-export const createLocaleFormatter = (
-  usaCalendar: boolean = false
-): LocaleFormatter => {
+const createLocaleFormatter = (usaCalendar: boolean): LocaleFormatter => {
   const locale = usaCalendar ? undefined : fr;
   const weekDays = usaCalendar ? USA_WEEK_DAYS : FRENCH_WEEK_DAYS;
 
@@ -62,3 +55,16 @@ export const createLocaleFormatter = (
     getDateOffset: (dayIndex) => (usaCalendar ? dayIndex : (dayIndex + 6) % 7),
   };
 };
+
+const USA_FORMATTER = createLocaleFormatter(true);
+const FRENCH_FORMATTER = createLocaleFormatter(false);
+
+/**
+ * Formatage et ordre des jours du calendrier : semaine américaine (dimanche
+ * en premier, heures sur 12 h, anglais) ou française (lundi en premier,
+ * heures sur 24 h, français). Les deux formatteurs sont créés une seule fois
+ * et partagés par tous les rendus.
+ */
+export const getLocaleFormatter = (
+  usaCalendar: boolean = false
+): LocaleFormatter => (usaCalendar ? USA_FORMATTER : FRENCH_FORMATTER);

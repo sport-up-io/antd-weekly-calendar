@@ -2,7 +2,7 @@ import { add, getDay } from 'date-fns';
 import { useRef } from 'react';
 import type { CSSProperties, MouseEvent } from 'react';
 
-import { createLocaleFormatter } from './localeConfig';
+import { getLocaleFormatter } from './localeConfig';
 import type { GenericEvent } from './types';
 import { useEventExpansion } from './useEventExpansion';
 import { getEventBoxLayout, sizeEventBox } from './utils';
@@ -83,7 +83,7 @@ export const EventBlock = <T extends GenericEvent>({
 }: Readonly<EventBlockProps<T>>) => {
   const eventRef = useRef<HTMLButtonElement>(null);
   const { isExpanded, expand } = useEventExpansion(eventRef);
-  const locale = createLocaleFormatter(usaCalendar);
+  const locale = getLocaleFormatter(usaCalendar);
 
   const eventHour = add(hour, {
     days: locale.getDateOffset(getDay(new Date(event.endTime))),

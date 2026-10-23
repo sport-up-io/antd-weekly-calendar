@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { createLocaleFormatter } from '../localeConfig';
+import { getLocaleFormatter } from '../localeConfig';
 
-describe('createLocaleFormatter', () => {
+describe('getLocaleFormatter', () => {
   const monday = new Date(2024, 7, 19, 14);
 
   describe('french calendar', () => {
-    const locale = createLocaleFormatter();
+    const locale = getLocaleFormatter();
 
     it('lists days from monday', () => {
       expect(locale.getDayIndices(true)).toEqual([1, 2, 3, 4, 5, 6, 0]);
@@ -25,7 +25,7 @@ describe('createLocaleFormatter', () => {
   });
 
   describe('USA calendar', () => {
-    const locale = createLocaleFormatter(true);
+    const locale = getLocaleFormatter(true);
 
     it('lists days from sunday', () => {
       expect(locale.getDayIndices(true)).toEqual([0, 1, 2, 3, 4, 5, 6]);
@@ -43,8 +43,14 @@ describe('createLocaleFormatter', () => {
     });
   });
 
+  it('shares one formatter per calendar type', () => {
+    expect(getLocaleFormatter()).toBe(getLocaleFormatter(false));
+    expect(getLocaleFormatter(true)).toBe(getLocaleFormatter(true));
+    expect(getLocaleFormatter(true)).not.toBe(getLocaleFormatter(false));
+  });
+
   it('exposes the column and week object keys', () => {
-    const locale = createLocaleFormatter();
+    const locale = getLocaleFormatter();
 
     expect(locale.dayNames[0]).toBe('Sunday');
     expect(locale.dayNamesLower[0]).toBe('sunday');

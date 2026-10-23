@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { createLocaleFormatter } from '../localeConfig';
+import { getLocaleFormatter } from '../localeConfig';
 import type { GenericEvent, WeekObject } from '../types';
 import {
   calculateScrollOffset,
@@ -290,7 +290,7 @@ describe('getEventBoxLayout', () => {
 });
 
 describe('getWeekMonthLabel', () => {
-  const locale = createLocaleFormatter(true);
+  const locale = getLocaleFormatter(true);
 
   it('shows one month when the week stays in it', () => {
     expect(getWeekMonthLabel(new Date(2024, 7, 5), 1, locale)).toBe('Aug');

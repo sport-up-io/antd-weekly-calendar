@@ -13,7 +13,7 @@ import {
   startOfDay,
 } from 'date-fns';
 
-import { createLocaleFormatter, DAY_NAMES } from './localeConfig';
+import { getLocaleFormatter, DAY_NAMES } from './localeConfig';
 import type { LocaleFormatter } from './localeConfig';
 import type {
   DayColumnKey,
@@ -129,7 +129,7 @@ export const getDayHoursEvents = <T extends GenericEvent>({
   usaCalendar = false,
   includeWeekends = true,
 }: DayHoursEventsParams<T>): EventsObject<T>[] => {
-  const locale = createLocaleFormatter(usaCalendar);
+  const locale = getLocaleFormatter(usaCalendar);
   const dayIndices = locale.getDayIndices(includeWeekends);
   const startDate = startOfDay(weekRange.startDate);
 
