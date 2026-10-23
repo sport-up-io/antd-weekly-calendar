@@ -18,6 +18,8 @@ description: Use when writing a git commit message, creating a branch, or prepar
 
 Le hook git `commit-msg` installé par `agents:sync` (`.agents/scripts/commit-msg.mjs`) réécrit chaque message dans ce format à partir du diff, quel que soit l'outil qui commite. Le désactiver ponctuellement : `SPORTUP_COMMIT_AI=0 git commit …`.
 
+**Agents : déléguer la rédaction au hook.** Le hook génère le message avec Haiku, sans outils ni contexte de projet : c'est la voie la moins coûteuse. Un agent qui commite écrit seulement la première ligne (`fix(games): 🐛 …`), sans corps, sans relire le diff pour le décrire et sans sous-agent dédié. Le message d'origine sert d'indice au hook : le choix du type et du scope reste utile.
+
 | Type | Gitmoji | Usage |
 | --- | --- | --- |
 | `feat` | ✨ | Nouvelle fonctionnalité. |
