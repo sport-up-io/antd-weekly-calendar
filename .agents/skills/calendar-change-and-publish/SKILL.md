@@ -16,7 +16,8 @@ Repo : `antd-weekly-calendar`, puis `sportup-pro`.
 ## 2. Vérifier
 
 ```bash
-npx vitest run
+npm run lint
+npm test
 npm run build
 ```
 

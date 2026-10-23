@@ -15,15 +15,15 @@ A weekly calendar component for antd.
 ## Getting Started
 
 ```
-npm install antd-weekly-calendar
+npm install @sportup/antd-weekly-calendar
 ```
+
+Peer dependencies: `react`, `react-dom`, `antd` and `@ant-design/icons`.
 
 ## Example
 
-This is a basic example, check out the `example` folder for a complete Chakra UI example!
-
 ```tsx
-import { WeeklyCalendar } from 'antd-weekly-calendar';
+import { WeeklyCalendar } from '@sportup/antd-weekly-calendar';
 
 const events = [
   {
@@ -56,13 +56,18 @@ function MyCalendar() {
 
 ### `<WeeklyCalendar />`
 
-| Property      | Type              | Default | Description                                 |
-| ------------- | ----------------- | ------- | ------------------------------------------- |
-| onEventClick  | `(event) => void` | -       | Callback for when an event is being clicked |
-| onSelectDate  | `(date) => void`  | -       | Callback for when a date is selected        |
-| weekends?     | `boolean`         | `false` | Display weekend on the calendar             |
-| headerSticky? | `boolean`         | `false` | Make the header sticky                      |
-| usaCalendar?  | `boolean`         | `false` | Change week days order to Usa norm          |
+| Property          | Type                   | Default        | Description                                                      |
+| ----------------- | ---------------------- | -------------- | ---------------------------------------------------------------- |
+| events            | `T[]`                  | -              | Events to display                                                |
+| onEventClick?     | `(event: T) => void`   | -              | Callback for when an event is being clicked                      |
+| onSelectDate?     | `(date: Date) => void` | -              | Called with the first day of the displayed week, on every change |
+| currentDate?      | `Date`                 | today          | Week to display, followed whenever it changes                    |
+| value?            | `Date`                 | -              | Deprecated, use `currentDate`                                    |
+| filterComponent?  | `ReactNode`            | -              | Filters displayed next to the week picker                        |
+| filteredEventIds? | `(string \| number)[]` | -              | Only display these events when not empty                         |
+| weekends?         | `boolean`              | `false`        | Display weekend on the calendar                                  |
+| headerSticky?     | `boolean`              | `false`        | Make the header sticky                                           |
+| usaCalendar?      | `boolean`              | `false`        | Change week days order to Usa norm                               |
 
 ### Event Api
 

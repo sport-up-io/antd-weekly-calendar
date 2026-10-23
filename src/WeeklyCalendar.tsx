@@ -1,55 +1,52 @@
 import { Card } from 'antd';
-import { endOfWeek, startOfWeek } from 'date-fns';
-import React, { useEffect, useState } from 'react';
+import { endOfWeek } from 'date-fns';
 
-import Calendar from './components/CalendarBody';
+import { CalendarBody } from './components/CalendarBody';
 import { CalendarHeader } from './components/CalendarHeader';
-import { CalendarContainerProps, GenericEvent } from './components/types';
+import type {
+  CalendarContainerProps,
+  GenericEvent,
+  WeekStartsOn,
+} from './components/types';
+import { useCurrentWeek } from './components/useCurrentWeek';
 import { daysToWeekObject } from './components/utils';
 
-export function WeeklyCalendar<T extends GenericEvent>({
-  events,
-  onEventClick,
-  onSelectDate,
-  weekends = false,
-  currentDate,
-  headerSticky = false,
-  usaCalendar = false,
-  value,
-  filterComponent,
-  filteredEventIds,
-}: CalendarContainerProps<T>) {
-  const dateToUse = currentDate || value;
-  const weekStartsOn = usaCalendar ? 0 : 1; // USA: Sunday (0), Europe: Monday (1)
+interface LegacyDateProps {
+  value?: Date;
+}
 
-  const [startWeek, setStartWeek] = useState(
-    startOfWeek(dateToUse || new Date(), { weekStartsOn })
-  );
-  const weekPeriod = {
-    startDate: startWeek,
-    endDate: endOfWeek(startWeek, { weekStartsOn }),
-  };
+/** Date de l'ancienne prop `value`, lue via un type qui n'est pas déprécié. */
+const getLegacyDate = ({ value }: LegacyDateProps): Date | undefined => value;
 
-  useEffect(() => {
-    if (
-      dateToUse &&
-      startOfWeek(dateToUse, { weekStartsOn }).getTime() !== startWeek.getTime()
-    ) {
-      setStartWeek(startOfWeek(dateToUse, { weekStartsOn }));
-    }
-  }, [dateToUse, weekStartsOn]);
+/**
+ * Calendrier hebdomadaire : en-tête de navigation et grille horaire des
+ * évènements de la semaine affichée.
+ */
+export function WeeklyCalendar<T extends GenericEvent>(
+  props: Readonly<CalendarContainerProps<T>>
+) {
+  const {
+    events,
+    onEventClick,
+    onSelectDate,
+    weekends = false,
+    currentDate,
+    headerSticky = false,
+    usaCalendar = false,
+    filterComponent,
+    filteredEventIds,
+  } = props;
+  const weekStartsOn: WeekStartsOn = usaCalendar ? 0 : 1;
+  const { startWeek, setStartWeek } = useCurrentWeek({
+    date: currentDate ?? getLegacyDate(props),
+    weekStartsOn,
+    onWeekChange: onSelectDate,
+  });
 
-  useEffect(() => {
-    onSelectDate && onSelectDate(startWeek);
-  }, [startWeek]);
+  const filteredEvents = filteredEventIds?.length
+    ? events.filter((event) => filteredEventIds.includes(event.eventId))
+    : events;
 
-  // Filter events based on filteredEventIds if provided
-  const filteredEvents =
-    filteredEventIds && filteredEventIds.length > 0
-      ? events.filter((event) => filteredEventIds.includes(event.eventId))
-      : events;
-
-  const weekObject = daysToWeekObject(filteredEvents, startWeek, weekStartsOn);
   return (
     <Card>
       <CalendarHeader
@@ -59,10 +56,13 @@ export function WeeklyCalendar<T extends GenericEvent>({
         usaCalendar={usaCalendar}
         filterComponent={filterComponent}
       />
-      <Calendar
-        weekDatesRange={weekPeriod}
-        getDayEvents={weekObject}
-        onEventClick={onEventClick as (e: GenericEvent) => any}
+      <CalendarBody
+        weekDatesRange={{
+          startDate: startWeek,
+          endDate: endOfWeek(startWeek, { weekStartsOn }),
+        }}
+        getDayEvents={daysToWeekObject(filteredEvents, startWeek, weekStartsOn)}
+        onEventClick={onEventClick}
         weekends={weekends}
         headerSticky={headerSticky}
         usaCalendar={usaCalendar}

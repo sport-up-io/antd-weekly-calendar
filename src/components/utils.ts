@@ -4,252 +4,268 @@ import {
   differenceInMinutes,
   eachDayOfInterval,
   endOfDay,
+  endOfWeek,
   getDay,
+  getMonth,
   isSameDay,
   isSameHour,
   isSameWeek,
   startOfDay,
 } from 'date-fns';
 
-import { createLocaleFormatter } from './localeConfig';
-import {
-  DayName,
+import { createLocaleFormatter, DAY_NAMES } from './localeConfig';
+import type { LocaleFormatter } from './localeConfig';
+import type {
+  DayColumnKey,
   EventsObject,
   GenericEvent,
   WeekDateRange,
   WeekObject,
+  WeekStartsOn,
 } from './types';
 
+const HOURS_PER_DAY = 24;
+/** Conversion de minutes en pourcentage de la hauteur d'une cellule d'une heure. */
+const MINUTES_TO_PERCENT = 1.666666667;
+const FULL_CELL_PERCENT = 100;
+const MIN_LATE_BOX_SIZE = 25;
+const LATE_EVENT_HOUR = 23;
+const EVENT_AREA_WIDTH = 93;
+const STACKED_EVENT_OFFSET = 26;
+const MAX_STACKED_EVENTS = 4;
+
+export const MIN_BOX_SIZE = 40;
+
+interface SplitDayParams<T extends GenericEvent> {
+  event: T;
+  day: Date;
+  isFirstDay: boolean;
+  isLastDay: boolean;
+}
+
+/** Part d'un évènement sur plusieurs jours qui tombe sur `day`. */
+const splitMultiDayEvent = <T extends GenericEvent>({
+  event,
+  day,
+  isFirstDay,
+  isLastDay,
+}: SplitDayParams<T>): T => ({
+  ...event,
+  originalStartTime: event.startTime,
+  originalEndTime: event.endTime,
+  startTime: isFirstDay ? event.startTime : startOfDay(day),
+  endTime: isLastDay && !isFirstDay ? event.endTime : endOfDay(day),
+});
+
+const createEmptyWeekObject = <T>(): WeekObject<T> => ({
+  sunday: [],
+  monday: [],
+  tuesday: [],
+  wednesday: [],
+  thursday: [],
+  friday: [],
+  saturday: [],
+});
+
 /**
- * Splits multi-day events into separate events for each day
- */
-const splitMultiDayEvent = <T extends GenericEvent>(
-  event: T,
-  dayInterval: Date,
-  isFirstDay: boolean,
-  isLastDay: boolean
-): T => {
-  const splitEvent = { ...event };
-
-  // Store original times for display
-  splitEvent.originalStartTime = event.startTime;
-  splitEvent.originalEndTime = event.endTime;
-
-  if (isFirstDay) {
-    splitEvent.endTime = endOfDay(dayInterval);
-  } else if (isLastDay) {
-    splitEvent.startTime = startOfDay(dayInterval);
-  } else {
-    splitEvent.startTime = startOfDay(dayInterval);
-    splitEvent.endTime = endOfDay(dayInterval);
-  }
-
-  return splitEvent;
-}; /**
- * Converts an array of events into a structured object representing the events of a specific week.
+ * Range les évènements par jour de la semaine qui commence à `startWeek`.
  *
- * This function processes a list of events and organizes them into a week object, where each day of the week (Sunday to Saturday)
- * contains an array of events that occur on that day. The function handles events that span multiple days by splitting them
- * into separate events for each day they cover.
- *
- * @template T - The type of the event objects in the events array. This should extend the GenericEvent interface.
- * @param {T[]} events - The array of event objects to be processed. Each event object must have a `startTime` and `endTime`.
- * @param {Date} startWeek - The start date of the week for which the events should be organized.
- * @returns {WeekObject<T>} An object representing the week, where each key is a day of the week ('sunday', 'monday', etc.),
- * and the value is an array of events that occur on that day.
- * // weekObject will contain events organized by day for the specified week
+ * Un évènement n'est retenu que s'il commence dans cette semaine. Un évènement
+ * sur plusieurs jours est découpé en une part par jour, chaque part gardant
+ * ses horaires réels dans `originalStartTime` et `originalEndTime` ; les parts
+ * qui débordent sur la semaine suivante sont ignorées.
  */
 export const daysToWeekObject = <T extends GenericEvent>(
   events: T[],
   startWeek: Date,
-  weekStartsOn: 0 | 1 = 1
-) => {
-  const dayNames: DayName[] = [
-    'sunday',
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday',
-  ];
+  weekStartsOn: WeekStartsOn = 1
+): WeekObject<T> => {
+  const weekObject = createEmptyWeekObject<T>();
 
-  const weekObject: WeekObject<T> = {
-    sunday: [],
-    monday: [],
-    tuesday: [],
-    wednesday: [],
-    thursday: [],
-    friday: [],
-    saturday: [],
-  };
+  for (const event of events) {
+    if (!isSameWeek(event.startTime, startWeek, { weekStartsOn })) continue;
 
-  if (!events) return weekObject;
+    if (isSameDay(event.startTime, event.endTime)) {
+      weekObject[DAY_NAMES[getDay(event.startTime)]].push(event);
+      continue;
+    }
 
-  events.forEach((event) => {
-    const eventStartDay = event.startTime;
-    const eventEndDay = event.endTime;
-
-    if (!isSameWeek(eventStartDay, startWeek, { weekStartsOn })) return;
-
-    if (isSameDay(eventStartDay, eventEndDay)) {
-      // Single day event
-      const dayKey: DayName = dayNames[getDay(eventStartDay)];
-      weekObject[dayKey].push(event);
-    } else {
-      // Multi-day event - split it
-      const days = eachDayOfInterval({
-        start: startOfDay(eventStartDay),
-        end: startOfDay(eventEndDay),
-      });
-
-      days.forEach((day, index) => {
-        const isFirstDay = index === 0;
-        const isLastDay = index === days.length - 1;
-        const splitEvent = splitMultiDayEvent(
+    const days = eachDayOfInterval({
+      start: startOfDay(event.startTime),
+      end: startOfDay(event.endTime),
+    });
+    days.forEach((day, index) => {
+      if (!isSameWeek(startWeek, day, { weekStartsOn })) return;
+      weekObject[DAY_NAMES[getDay(day)]].push(
+        splitMultiDayEvent({
           event,
           day,
-          isFirstDay,
-          isLastDay
-        );
-
-        if (isSameWeek(startWeek, day, { weekStartsOn })) {
-          const dayKey: DayName = dayNames[getDay(day)];
-          weekObject[dayKey].push(splitEvent);
-        }
-      });
-    }
-  });
+          isFirstDay: index === 0,
+          isLastDay: index === days.length - 1,
+        })
+      );
+    });
+  }
 
   return weekObject;
 };
 
-/**
- *
- * This function processes a week's worth of events, grouping them by hour for each day of the week.
- * It creates an array of objects representing each hour slot. Each object contains a list of events that occur within that hour on each day.
- * The first row represents all-day events, followed by 24 hourly rows.
- *
- * @template T - The type of the event objects. This should extend the GenericEvent interface.
- * @param {WeekDateRange} weekRange - The start and end dates for the week being processed.
- * @param {WeekObject<T>} [weekObject] - An object containing arrays of events for each day of the week.
- * @returns {EventsObject<T>[]} An array of event objects, grouped by hour, to be used in a calendar table.
- *
- * @remarks
- * - The function generates 26 rows: 1 for all-day events, 24 for each hour of the day, and 1 header row.
- * - Each day of the week is processed, and events are filtered to determine whether they occur within the
- *   corresponding hour slot. The `isSameHour` function ensures that events are accurately placed.
- * - The generated array can be used to populate an Ant Design Table component, aligning events with their
- *   corresponding hour and day.
- *
- * @see createDayColumns
- */
-
-export const getDayHoursEvents = <T extends GenericEvent>(
-  weekRange: WeekDateRange,
-  weekObject: WeekObject<T> | undefined,
-  usaCalendar: boolean = false,
-  includeWeekends: boolean = true
-) => {
-  const locale = createLocaleFormatter(usaCalendar);
-  const dayIndices = locale.getDayIndices(includeWeekends);
-  const ROW_AMOUNT = 24;
-  const events: EventsObject<T>[] = [];
-
-  for (let i = 0; i < ROW_AMOUNT; i++) {
-    const startDate = startOfDay(weekRange.startDate);
-    const hour = addHours(startDate, i);
-
-    const eventObj: EventsObject<T> = {
-      id: i,
-      hourObject: hour,
-      hour: locale.formatHour(hour),
-    } as EventsObject<T>;
-
-    // Add events for each day
-    dayIndices.forEach((dayIndex) => {
-      const dayName = locale.dayNames[dayIndex]; // Column key
-      const dayNameLower = locale.dayNamesLower[dayIndex]; // WeekObject key
-      const dateOffset = locale.getDateOffset(dayIndex);
-      const dayHour = add(hour, { days: dateOffset });
-
-      const eventsForThisHour = weekObject?.[dayNameLower]?.filter((e) =>
-        isSameHour(e.startTime, dayHour)
-      );
-
-      (eventObj as any)[dayName] = eventsForThisHour;
-    });
-
-    events.push(eventObj);
-  }
-
-  return events;
-};
-
-const HOUR_TO_DECIMAL = 1.666666667;
-export const MIN_BOX_SIZE = 40;
-
-// make sure that the hour and the daya are the same
-export const sizeEventBox = <T extends GenericEvent>(event: T, hour: Date) => {
-  const eventStartTime = new Date(event.startTime);
-  const eventEndTime = new Date(event.endTime);
-
-  let boxSize =
-    Math.floor(
-      differenceInMinutes(eventEndTime, eventStartTime) * HOUR_TO_DECIMAL
-    ) < MIN_BOX_SIZE
-      ? MIN_BOX_SIZE
-      : Math.floor(
-          differenceInMinutes(eventEndTime, eventStartTime) * HOUR_TO_DECIMAL
-        );
-
-  let boxPosition =
-    differenceInMinutes(hour, eventStartTime) * HOUR_TO_DECIMAL > 100
-      ? 0
-      : differenceInMinutes(eventStartTime, hour) * HOUR_TO_DECIMAL;
-
-  // Check for events after 23:00 that would overflow the cell
-  const isAfter23 = eventStartTime.getHours() >= 23;
-  if (isAfter23 && boxPosition + boxSize > 100) {
-    const remainingSpace = 100 - boxPosition;
-    if (remainingSpace >= 25) {
-      boxSize = remainingSpace;
-    } else {
-      boxSize = 25;
-      boxPosition = 75;
-    }
-  }
-  return { boxPosition: boxPosition, boxSize: boxSize };
-};
-
-/**
- * calculateScrollOffset - A  to calculate the scroll offset needed to bring a specific row into view.
- *
- * @param {HTMLDivElement} container - The container element that is scrollable.
- * @param {HTMLDivElement} row - The row element that needs to be scrolled into view.
- * @returns {number} - The calculated scroll offset value.
- *
- * This function calculates how much the container needs to be scrolled to bring the target row into view.
- * It determines the difference between the container's top position and the row's top position, and adjusts
- * the scroll position accordingly, with an extra offset to position the row appropriately in the view.
- */
-export function calculateScrollOffset(
-  container: HTMLDivElement,
-  row: HTMLDivElement
-): number {
-  const containerTop = container.getBoundingClientRect().top;
-  const rowTop = row.getBoundingClientRect().top;
-  return rowTop - containerTop; // Adjust to scroll just enough to show the row
+interface DayHoursEventsParams<T extends GenericEvent> {
+  weekRange: WeekDateRange;
+  weekObject?: WeekObject<T>;
+  usaCalendar?: boolean;
+  includeWeekends?: boolean;
 }
 
 /**
- * Determines if the provided `hourObject` represents the same hour as the `currentDate` within the same week.
+ * Lignes de la table : une par heure de la journée, avec pour chaque jour
+ * affiché les évènements qui commencent dans cette heure.
  *
- * @param hourObject - The date object to compare, or `undefined`.
- * @param currentDate - The current date to compare against.
- * @returns `true` if `hourObject` is defined and represents the same hour within the same week as `currentDate`; otherwise, `false`.
+ * @see createDayColumns pour les colonnes qui lisent ces lignes.
  */
-export function isCurentHour(
+export const getDayHoursEvents = <T extends GenericEvent>({
+  weekRange,
+  weekObject,
+  usaCalendar = false,
+  includeWeekends = true,
+}: DayHoursEventsParams<T>): EventsObject<T>[] => {
+  const locale = createLocaleFormatter(usaCalendar);
+  const dayIndices = locale.getDayIndices(includeWeekends);
+  const startDate = startOfDay(weekRange.startDate);
+
+  return Array.from({ length: HOURS_PER_DAY }, (_, hourIndex) => {
+    const hour = addHours(startDate, hourIndex);
+    const dayEvents: Partial<Record<DayColumnKey, T[]>> = {};
+
+    for (const dayIndex of dayIndices) {
+      const dayHour = add(hour, { days: locale.getDateOffset(dayIndex) });
+      dayEvents[locale.dayNames[dayIndex]] = weekObject?.[
+        locale.dayNamesLower[dayIndex]
+      ].filter((event) => isSameHour(event.startTime, dayHour));
+    }
+
+    return {
+      id: hourIndex,
+      hourObject: hour,
+      hour: locale.formatHour(hour),
+      ...dayEvents,
+    };
+  });
+};
+
+export interface EventBox {
+  /** Décalage depuis le haut de la cellule, en pourcentage. */
+  boxPosition: number;
+  /** Hauteur, en pourcentage de la cellule. */
+  boxSize: number;
+}
+
+/**
+ * Position verticale et hauteur d'un évènement dans la cellule de l'heure
+ * `hour`, qui doit être du même jour que l'évènement. Un évènement commençant
+ * après 23 h est raccourci pour ne pas déborder de la dernière cellule.
+ */
+export const sizeEventBox = <T extends GenericEvent>(
+  event: T,
+  hour: Date
+): EventBox => {
+  const eventStartTime = new Date(event.startTime);
+  const eventEndTime = new Date(event.endTime);
+
+  const boxSize = Math.max(
+    Math.floor(
+      differenceInMinutes(eventEndTime, eventStartTime) * MINUTES_TO_PERCENT
+    ),
+    MIN_BOX_SIZE
+  );
+  const startsBeforeCell =
+    differenceInMinutes(hour, eventStartTime) * MINUTES_TO_PERCENT >
+    FULL_CELL_PERCENT;
+  const boxPosition = startsBeforeCell
+    ? 0
+    : differenceInMinutes(eventStartTime, hour) * MINUTES_TO_PERCENT;
+
+  const isLateEvent = eventStartTime.getHours() >= LATE_EVENT_HOUR;
+  if (!isLateEvent || boxPosition + boxSize <= FULL_CELL_PERCENT) {
+    return { boxPosition, boxSize };
+  }
+
+  const remainingSpace = FULL_CELL_PERCENT - boxPosition;
+  if (remainingSpace >= MIN_LATE_BOX_SIZE) {
+    return { boxPosition, boxSize: remainingSpace };
+  }
+  return {
+    boxPosition: FULL_CELL_PERCENT - MIN_LATE_BOX_SIZE,
+    boxSize: MIN_LATE_BOX_SIZE,
+  };
+};
+
+export interface EventBoxLayout {
+  /** Décalage depuis la gauche de la cellule, en pourcentage. */
+  left: number;
+  /** Largeur, en pourcentage de la cellule. */
+  width: number;
+}
+
+interface EventBoxLayoutParams {
+  index: number;
+  eventCount: number;
+  isExpanded: boolean;
+}
+
+/**
+ * Placement horizontal du `index`-ième évènement d'une cellule qui en contient
+ * `eventCount`. Les évènements se chevauchent en escalier ; à partir de quatre,
+ * ils se partagent la largeur. Un évènement déplié occupe toute la largeur.
+ */
+export const getEventBoxLayout = ({
+  index,
+  eventCount,
+  isExpanded,
+}: EventBoxLayoutParams): EventBoxLayout => {
+  if (isExpanded) {
+    return { left: 0, width: EVENT_AREA_WIDTH };
+  }
+  const left =
+    eventCount >= MAX_STACKED_EVENTS
+      ? (EVENT_AREA_WIDTH / eventCount) * index
+      : STACKED_EVENT_OFFSET * index;
+  return { left, width: EVENT_AREA_WIDTH - left };
+};
+
+/**
+ * Libellé du ou des mois couverts par la semaine : `janv.` ou `janv.-févr.`.
+ */
+export const getWeekMonthLabel = (
+  startWeek: Date,
+  weekStartsOn: WeekStartsOn,
+  locale: LocaleFormatter
+): string => {
+  const endOfWeekDate = endOfWeek(startWeek, { weekStartsOn });
+  const startMonth = locale.formatDate(startWeek, 'MMM');
+
+  if (getMonth(endOfWeekDate) === getMonth(startWeek)) {
+    return startMonth;
+  }
+  return `${startMonth}-${locale.formatDate(endOfWeekDate, 'MMM')}`;
+};
+
+/**
+ * Distance verticale entre le haut du conteneur scrollable et la ligne
+ * `row`, pour faire défiler le conteneur jusqu'à cette ligne.
+ */
+export function calculateScrollOffset(
+  container: HTMLElement,
+  row: HTMLElement
+): number {
+  return row.getBoundingClientRect().top - container.getBoundingClientRect().top;
+}
+
+/**
+ * Vrai si `hourObject` a la même heure que `currentDate` et tombe dans la
+ * même semaine (semaine commençant le dimanche).
+ */
+export function isCurrentHour(
   hourObject: Date | undefined,
   currentDate: Date
 ): boolean {
