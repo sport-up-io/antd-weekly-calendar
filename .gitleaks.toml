@@ -1,0 +1,13 @@
+title = "Sport'Up Gitleaks Configuration"
+
+# Garde les règles par défaut : sans ce bloc, la config remplace tout et gitleaks ne détecte plus rien
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Clés publiques et variables CI qui ne sont pas des secrets"
+regexTarget = "match"
+regexes = [
+    '''pk\.eyJ[a-zA-Z0-9_\-\.]+''', # Tokens publics Mapbox (pk.*), embarqués dans le bundle client ; les sk.* restent détectés
+    '''\$\{SONAR_TOKEN\}''',        # Référence à la variable CI, pas sa valeur
+]
