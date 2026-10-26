@@ -1,0 +1,30 @@
+name: ✨ Proposer une fonctionnalité
+description: Une idée pour améliorer Sport UP.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: Merci pour votre idée ! Décrivez le besoin avant la solution, cela nous aide à trouver la meilleure réponse.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problème ou besoin
+      description: Quel problème rencontrez-vous ? Pour qui (joueur, gestionnaire, administrateur) ?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution proposée
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexte supplémentaire
+      description: Maquettes, captures, liens.
