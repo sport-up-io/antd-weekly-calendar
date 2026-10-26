@@ -20,6 +20,7 @@ include:
     file: version-flow.yml
 
 stages:
+  - 🔒 Security
   - ⚙️ Config
   - 🔑 Authentication
   - 🛠️ Build
@@ -29,6 +30,18 @@ stages:
 
 variables:
   NEED_ENV: false
+
+# #############################################################################
+# ## SECURITY
+# #############################################################################
+
+gitleaks:check:
+  extends: .gitleaks:check
+  stage: 🔒 Security
+  only:
+    - branches
+    - merge_requests
+    - tags
 
 # #############################################################################
 # ## AUTHENTICATION
@@ -95,6 +108,13 @@ release:create:
 
 sonarqube:check:
   extends: .sonarqube:check
+  stage: 🔬 Analyse
+  needs: ['node:test']
+  only:
+    - main
+
+trivy:fs:
+  extends: .trivy:fs
   stage: 🔬 Analyse
   needs: ['node:test']
   only:
