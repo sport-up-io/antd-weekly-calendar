@@ -33,7 +33,7 @@
     "singleQuote": true,
     "trailingComma": "es5"
   },
-  "author": "Sport'Up",
+  "author": "SPORT UP",
   "dependencies": {
     "@rc-component/picker": "^1.16.0",
     "date-fns": "^4.4.0"
