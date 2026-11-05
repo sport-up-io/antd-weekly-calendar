@@ -1,4 +1,4 @@
-title = "Sport'Up Gitleaks Configuration"
+title = "Sport UP Gitleaks Configuration"
 
 # Garde les règles par défaut : sans ce bloc, la config remplace tout et gitleaks ne détecte plus rien
 [extend]
