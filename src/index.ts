@@ -3,4 +3,6 @@ export type {
   BaseCalendarProps,
   CalendarContainerProps,
   GenericEvent,
+  HatchedPeriod,
+  HatchedZone,
 } from './components/types';

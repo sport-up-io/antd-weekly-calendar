@@ -3,8 +3,15 @@ import { add } from 'date-fns';
 import type { CSSProperties } from 'react';
 
 import { EventBlock } from './Event';
+import { HatchedCellOverlay } from './HatchedCellOverlay';
 import { getLocaleFormatter } from './localeConfig';
-import type { EventsObject, GenericEvent, WeekDateRange } from './types';
+import { NowIndicator } from './NowIndicator';
+import type {
+  EventsObject,
+  GenericEvent,
+  HatchedZone,
+  WeekDateRange,
+} from './types';
 
 export const SCROLL_TO_ROW = 6;
 
@@ -15,6 +22,9 @@ interface DayColumnsParams<T extends GenericEvent> {
   includeWeekends: boolean;
   onEventClick?: (event: T) => void;
   usaCalendar?: boolean;
+  hatchedZones?: HatchedZone[];
+  nowIndicatorColor?: string;
+  now: Date;
   /** Taille de police des en-têtes de colonne. */
   fontSize: CSSProperties['fontSize'];
 }
@@ -32,6 +42,9 @@ export function createDayColumns<T extends GenericEvent>({
   includeWeekends,
   onEventClick,
   usaCalendar = false,
+  hatchedZones = [],
+  nowIndicatorColor,
+  now,
   fontSize,
 }: DayColumnsParams<T>): ColumnType<EventsObject<T>>[] {
   const locale = getLocaleFormatter(usaCalendar);
@@ -51,18 +64,36 @@ export function createDayColumns<T extends GenericEvent>({
       dataIndex: dayKey,
       key: dayKey,
       width: DAY_COLUMN_WIDTH,
-      render: (events: T[] | undefined, row: EventsObject<T>) =>
-        events?.map((event, index) => (
-          <EventBlock
-            key={event.eventId}
-            event={event}
-            index={index}
-            hour={row.hourObject}
-            events={events.length}
-            onEventClick={onEventClick}
-            usaCalendar={usaCalendar}
-          />
-        )),
+      render: (events: T[] | undefined, row: EventsObject<T>) => {
+        const cellStart = add(row.hourObject, {
+          days: locale.getDateOffset(dayIndex),
+        });
+        return (
+          <>
+            {hatchedZones.length > 0 && (
+              <HatchedCellOverlay zones={hatchedZones} cellStart={cellStart} />
+            )}
+            {nowIndicatorColor && (
+              <NowIndicator
+                color={nowIndicatorColor}
+                cellStart={cellStart}
+                now={now}
+              />
+            )}
+            {events?.map((event, index) => (
+              <EventBlock
+                key={event.eventId}
+                event={event}
+                index={index}
+                hour={row.hourObject}
+                events={events.length}
+                onEventClick={onEventClick}
+                usaCalendar={usaCalendar}
+              />
+            ))}
+          </>
+        );
+      },
     };
   });
 }

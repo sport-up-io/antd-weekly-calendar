@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { addWeeks, startOfWeek } from 'date-fns';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -137,5 +137,76 @@ describe('WeeklyCalendar', () => {
 
     expect(onSelectDate).toHaveBeenLastCalledWith(new Date(2024, 7, 18));
     expect(screen.getByText('Sun 18')).toBeInTheDocument();
+  });
+
+  it('hatches each zone with its own legend', () => {
+    render(
+      <WeeklyCalendar
+        events={events}
+        currentDate={currentDate}
+        hatchedZones={[
+          {
+            key: 'closed',
+            color: 'grey',
+            legend: 'Complexe fermé',
+            periods: [
+              {
+                startTime: new Date(2024, 7, 20, 0),
+                endTime: new Date(2024, 7, 20, 2, 30),
+              },
+            ],
+          },
+          {
+            key: 'free',
+            color: 'green',
+            periods: [
+              {
+                startTime: new Date(2024, 7, 21, 8),
+                endTime: new Date(2024, 7, 21, 9),
+              },
+            ],
+          },
+        ]}
+      />
+    );
+
+    expect(screen.getByText('Complexe fermé')).toBeInTheDocument();
+    expect(screen.getAllByTestId('hatched-zone-closed')).toHaveLength(3);
+    expect(screen.getAllByTestId('hatched-zone-free')).toHaveLength(1);
+  });
+
+  it('hides the legend and zones without hatched zones', () => {
+    render(<WeeklyCalendar events={events} currentDate={currentDate} />);
+
+    expect(screen.queryByTestId(/hatched-zone/)).not.toBeInTheDocument();
+  });
+
+  it('draws the now indicator only with a color', () => {
+    const { rerender } = render(
+      <WeeklyCalendar events={[]} nowIndicatorColor="red" />
+    );
+    expect(screen.getByTestId('now-indicator')).toBeInTheDocument();
+
+    rerender(<WeeklyCalendar events={[]} />);
+    expect(screen.queryByTestId('now-indicator')).not.toBeInTheDocument();
+  });
+
+  it('moves the now indicator every minute', () => {
+    vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
+    vi.setSystemTime(new Date(2024, 7, 20, 10, 0));
+    render(
+      <WeeklyCalendar
+        events={[]}
+        currentDate={currentDate}
+        nowIndicatorColor="red"
+      />
+    );
+    expect(screen.getByTestId('now-indicator')).toHaveStyle({ top: '0%' });
+
+    act(() => {
+      vi.advanceTimersByTime(15 * 60_000);
+    });
+    expect(screen.getByTestId('now-indicator')).toHaveStyle({ top: '25%' });
+    vi.useRealTimers();
   });
 });

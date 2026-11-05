@@ -1,3 +1,4 @@
+import { addHours, addMinutes } from 'date-fns';
 import { describe, expect, it } from 'vitest';
 
 import { getLocaleFormatter } from '../localeConfig';
@@ -5,6 +6,8 @@ import type { GenericEvent, WeekObject } from '../types';
 import {
   calculateScrollOffset,
   daysToWeekObject,
+  getHatchedCellBoxes,
+  getNowIndicatorPosition,
   getDayHoursEvents,
   getEventBoxLayout,
   getWeekMonthLabel,
@@ -334,5 +337,69 @@ describe('isCurrentHour', () => {
 
   it('is false for another week', () => {
     expect(isCurrentHour(new Date(2024, 7, 28, 9), now)).toBe(false);
+  });
+});
+
+describe('getHatchedCellBoxes', () => {
+  const day = new Date(2024, 7, 20);
+  const cellStart = addHours(day, 10);
+  /** Période de fermeture entre deux heures décimales du même jour. */
+  const closed = (startHour: number, endHour: number) => ({
+    startTime: addMinutes(day, startHour * 60),
+    endTime: addMinutes(day, endHour * 60),
+  });
+
+  it('covers the whole cell for a period around it', () => {
+    expect(getHatchedCellBoxes([closed(8, 12)], cellStart)).toEqual([
+      { boxPosition: 0, boxSize: 100 },
+    ]);
+  });
+
+  it('clips periods to the cell', () => {
+    expect(getHatchedCellBoxes([closed(10.5, 12)], cellStart)).toEqual([
+      { boxPosition: 50, boxSize: 50 },
+    ]);
+    expect(getHatchedCellBoxes([closed(9, 10.25)], cellStart)).toEqual([
+      { boxPosition: 0, boxSize: 25 },
+    ]);
+  });
+
+  it('merges overlapping periods and keeps separate ones', () => {
+    const periods = [
+      closed(10.75, 11),
+      closed(10, 10.25),
+      closed(10.125, 10.5),
+    ];
+    expect(getHatchedCellBoxes(periods, cellStart)).toEqual([
+      { boxPosition: 0, boxSize: 50 },
+      { boxPosition: 75, boxSize: 25 },
+    ]);
+  });
+
+  it('ignores periods outside the cell', () => {
+    const periods = [closed(8, 10), closed(11, 12)];
+    expect(getHatchedCellBoxes(periods, cellStart)).toEqual([]);
+  });
+});
+
+describe('getNowIndicatorPosition', () => {
+  const cellStart = new Date(2024, 7, 20, 10);
+
+  it('places now inside its hour', () => {
+    expect(getNowIndicatorPosition(cellStart, new Date(2024, 7, 20, 10))).toBe(
+      0
+    );
+    expect(
+      getNowIndicatorPosition(cellStart, new Date(2024, 7, 20, 10, 45))
+    ).toBe(75);
+  });
+
+  it('is null outside the hour', () => {
+    expect(
+      getNowIndicatorPosition(cellStart, new Date(2024, 7, 20, 9, 59))
+    ).toBeNull();
+    expect(
+      getNowIndicatorPosition(cellStart, new Date(2024, 7, 20, 11))
+    ).toBeNull();
   });
 });

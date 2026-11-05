@@ -3,6 +3,7 @@ import { endOfWeek } from 'date-fns';
 
 import { CalendarBody } from './components/CalendarBody';
 import { CalendarHeader } from './components/CalendarHeader';
+import { HatchedZoneLegend } from './components/HatchedZoneLegend';
 import type {
   CalendarContainerProps,
   GenericEvent,
@@ -35,6 +36,8 @@ export function WeeklyCalendar<T extends GenericEvent>(
     usaCalendar = false,
     filterComponent,
     filteredEventIds,
+    hatchedZones = [],
+    nowIndicatorColor,
   } = props;
   const weekStartsOn: WeekStartsOn = usaCalendar ? 0 : 1;
   const { startWeek, setStartWeek } = useCurrentWeek({
@@ -56,6 +59,7 @@ export function WeeklyCalendar<T extends GenericEvent>(
         usaCalendar={usaCalendar}
         filterComponent={filterComponent}
       />
+      <HatchedZoneLegend zones={hatchedZones} />
       <CalendarBody
         weekDatesRange={{
           startDate: startWeek,
@@ -66,6 +70,8 @@ export function WeeklyCalendar<T extends GenericEvent>(
         weekends={weekends}
         headerSticky={headerSticky}
         usaCalendar={usaCalendar}
+        hatchedZones={hatchedZones}
+        nowIndicatorColor={nowIndicatorColor}
       />
     </Card>
   );

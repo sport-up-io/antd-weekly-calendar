@@ -14,6 +14,26 @@ export interface GenericEvent {
   originalEndTime?: Date;
 }
 
+/** Plage horaire d'une zone hachurée. */
+export interface HatchedPeriod {
+  startTime: Date;
+  endTime: Date;
+}
+
+/**
+ * Zones hachurées d'une même nature (fermeture, disponibilité…), affichées
+ * sous les évènements avec des rayures de la couleur choisie.
+ */
+export interface HatchedZone {
+  /** Identifiant stable de la zone. */
+  key: string;
+  /** Couleur des rayures, tout format CSS. */
+  color: string;
+  periods: HatchedPeriod[];
+  /** Libellé de la légende ; sans libellé, la zone n'apparaît pas dans la légende. */
+  legend?: ReactNode;
+}
+
 export interface BaseCalendarProps<T extends GenericEvent = GenericEvent> {
   onEventClick?: (event: T) => void;
   onSelectDate?: (date: Date) => void;
@@ -34,6 +54,9 @@ export interface CalendarContainerProps<T extends GenericEvent = GenericEvent>
   currentDate?: Date;
   filterComponent?: ReactNode;
   filteredEventIds?: (string | number)[];
+  hatchedZones?: HatchedZone[];
+  /** Couleur du trait de l'heure actuelle ; sans couleur, le trait n'est pas affiché. */
+  nowIndicatorColor?: string;
 }
 
 /** Premier jour de la semaine : 0 pour dimanche (USA), 1 pour lundi. */

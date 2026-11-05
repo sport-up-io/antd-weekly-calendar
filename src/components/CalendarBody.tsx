@@ -6,6 +6,7 @@ import type { CSSProperties } from 'react';
 import { createDayColumns, SCROLL_TO_ROW } from './columns';
 import type {
   BaseCalendarProps,
+  HatchedZone,
   EventsObject,
   GenericEvent,
   WeekDateRange,
@@ -16,6 +17,7 @@ import {
   getDayHoursEvents,
   isCurrentHour,
 } from './utils';
+import { useNow } from './useNow';
 
 const CONTAINER_STYLE: CSSProperties = { height: '80vh', overflow: 'auto' };
 const ROW_STYLE: CSSProperties = { padding: '8px 0' };
@@ -35,6 +37,8 @@ export interface CalendarBodyProps<T extends GenericEvent = GenericEvent>
   extends BaseCalendarProps<T> {
   weekDatesRange: WeekDateRange;
   getDayEvents?: WeekObject<T>;
+  hatchedZones?: HatchedZone[];
+  nowIndicatorColor?: string;
 }
 
 /**
@@ -48,10 +52,13 @@ export function CalendarBody<T extends GenericEvent>({
   weekends = false,
   headerSticky = false,
   usaCalendar = false,
+  hatchedZones,
+  nowIndicatorColor,
 }: Readonly<CalendarBodyProps<T>>) {
   const rowRef = useRef<HTMLTableCellElement>(null);
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const isExtraSmall = Grid.useBreakpoint().xs ?? false;
+  const now = useNow();
 
   useEffect(() => {
     const container = tableContainerRef.current;
@@ -90,6 +97,9 @@ export function CalendarBody<T extends GenericEvent>({
     includeWeekends: weekends,
     onEventClick,
     usaCalendar,
+    hatchedZones,
+    nowIndicatorColor,
+    now,
     fontSize,
   });
 
@@ -108,7 +118,7 @@ export function CalendarBody<T extends GenericEvent>({
         pagination={false}
         bordered
         onRow={(record) => ({
-          style: isCurrentHour(record.hourObject, new Date())
+          style: isCurrentHour(record.hourObject, now)
             ? CURRENT_HOUR_ROW_STYLE
             : ROW_STYLE,
         })}

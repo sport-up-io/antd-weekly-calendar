@@ -16,6 +16,7 @@ import {
 import { getLocaleFormatter, DAY_NAMES } from './localeConfig';
 import type { LocaleFormatter } from './localeConfig';
 import type {
+  HatchedPeriod,
   DayColumnKey,
   EventsObject,
   GenericEvent,
@@ -33,6 +34,7 @@ const LATE_EVENT_HOUR = 23;
 const EVENT_AREA_WIDTH = 93;
 const STACKED_EVENT_OFFSET = 26;
 const MAX_STACKED_EVENTS = 4;
+const MINUTES_PER_HOUR = 60;
 
 export const MIN_BOX_SIZE = 40;
 
@@ -198,6 +200,59 @@ export const sizeEventBox = <T extends GenericEvent>(
     boxPosition: FULL_CELL_PERCENT - MIN_LATE_BOX_SIZE,
     boxSize: MIN_LATE_BOX_SIZE,
   };
+};
+
+/**
+ * Parts des périodes hachurées dans la cellule d'une heure qui commence à
+ * `cellStart`, en pourcentage de sa hauteur, triées et fusionnées quand elles
+ * se chevauchent.
+ */
+export const getHatchedCellBoxes = (
+  periods: HatchedPeriod[],
+  cellStart: Date
+): EventBox[] => {
+  const cellEnd = addHours(cellStart, 1);
+  const toPercent = (date: Date) =>
+    (differenceInMinutes(date, cellStart) * FULL_CELL_PERCENT) /
+    MINUTES_PER_HOUR;
+
+  const ranges = periods
+    .filter(
+      ({ startTime, endTime }) => startTime < cellEnd && endTime > cellStart
+    )
+    .map(({ startTime, endTime }) => ({
+      start: toPercent(startTime > cellStart ? startTime : cellStart),
+      end: toPercent(endTime < cellEnd ? endTime : cellEnd),
+    }))
+    .sort((a, b) => a.start - b.start);
+
+  const merged: { start: number; end: number }[] = [];
+  for (const range of ranges) {
+    const last = merged.at(-1);
+    if (last && range.start <= last.end) {
+      last.end = Math.max(last.end, range.end);
+    } else {
+      merged.push({ ...range });
+    }
+  }
+
+  return merged
+    .filter(({ start, end }) => end > start)
+    .map(({ start, end }) => ({ boxPosition: start, boxSize: end - start }));
+};
+
+/**
+ * Position verticale de `now` dans la cellule de l'heure qui commence à
+ * `cellStart`, en pourcentage de sa hauteur, ou `null` si `now` est hors de
+ * cette heure.
+ */
+export const getNowIndicatorPosition = (
+  cellStart: Date,
+  now: Date
+): number | null => {
+  const minutes = differenceInMinutes(now, cellStart);
+  if (now < cellStart || minutes >= MINUTES_PER_HOUR) return null;
+  return (minutes * FULL_CELL_PERCENT) / MINUTES_PER_HOUR;
 };
 
 export interface EventBoxLayout {

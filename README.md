@@ -26,6 +26,8 @@
 - 🗓️ Vue semaine avec sélecteur de semaine intégré.
 - 🎨 Couleurs par évènement ou par défaut, dans le thème Ant Design.
 - 🌙 Évènements sur plusieurs jours découpés automatiquement jour par jour.
+- 🚧 Zones hachurées (fermetures, disponibilités…) avec leur couleur et leur légende.
+- 🔴 Trait de l'heure actuelle, de la couleur de votre choix.
 - 🔍 Filtres personnalisés et affichage d'un sous-ensemble d'évènements.
 - 📌 En-tête fixe, week-ends optionnels, semaine au format européen ou américain.
 - 🧩 Typé de bout en bout : vos propres champs d'évènement sont conservés dans les callbacks.
@@ -83,6 +85,8 @@ export function MyCalendar() {
 | `value?` | `Date` | – | Déprécié : utiliser `currentDate`. |
 | `filterComponent?` | `ReactNode` | – | Filtres affichés à côté du sélecteur de semaine. |
 | `filteredEventIds?` | `(string \| number)[]` | – | N'affiche que ces évènements quand la liste n'est pas vide. |
+| `hatchedZones?` | `HatchedZone[]` | – | Zones hachurées sous les évènements, chacune avec sa couleur de rayures et sa légende (voir ci-dessous). |
+| `nowIndicatorColor?` | `string` | – | Couleur du trait qui marque l'heure actuelle ; sans couleur, le trait n'est pas affiché. |
 | `weekends?` | `boolean` | `false` | Affiche le samedi et le dimanche. |
 | `headerSticky?` | `boolean` | `false` | Fixe l'en-tête au défilement. |
 | `usaCalendar?` | `boolean` | `false` | Fait commencer la semaine le dimanche. |
@@ -102,6 +106,15 @@ export function MyCalendar() {
 | `backgroundColor?` | `string` | Couleur de fond, tout format CSS. |
 
 Tout champ supplémentaire de votre type `T` est transmis tel quel à `onEventClick`.
+
+### Zone hachurée
+
+| Champ | Type | Description |
+| --- | --- | --- |
+| `key` | `string` | Identifiant stable de la zone. |
+| `color` | `string` | Couleur des rayures, tout format CSS. |
+| `periods` | `{ startTime: Date; endTime: Date }[]` | Plages hachurées. |
+| `legend?` | `ReactNode` | Libellé affiché dans la légende au-dessus de la grille ; sans libellé, la zone n'y figure pas. |
 
 ## 🛠️ Développement local
 

@@ -8,6 +8,11 @@ coverage
 
 *storybook.log
 
-# Config MCP propre au poste, générée par `npm run agents:sync` dans sportup-core
+# Instructions agents générées par `npm run sync` dans sportup-agents : ne pas versionner
 .mcp.json
+.claude/
 .agents/mcp_config.json
+.agents/hooks.json
+.agents/scripts/
+.agents/rules/shared-*.md
+.agents/skills/sportup-*/

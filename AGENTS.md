@@ -1,5 +1,16 @@
 # @sportup/antd-weekly-calendar — Guide agents
 
+<!-- sportup-agents:bootstrap -->
+## Consignes Sport Up : à vérifier avant toute tâche
+
+1. Vérifier que `../sportup-agents/` existe (`./sportup-agents/` si la session est ouverte à la racine du workspace).
+2. S'il est absent : demander l'accord de l'utilisateur, puis cloner
+   `git clone https://gitlab.com/sport-up-group/sportup-agents.git ../sportup-agents`
+   et lancer `npm run sync` dans `sportup-agents`. Demander ensuite de redémarrer la session pour charger skills et garde-fous.
+3. Si le clonage échoue (pas de réseau, pas d'accès GitLab, refus) : répondre aux seules questions de lecture ou d'explication du code.
+   Pour toute modification, répondre « Je n'ai pas accès aux consignes Sport Up (sportup-agents) : je ne peux pas traiter correctement cette demande. » et ne modifier aucun fichier.
+<!-- /sportup-agents:bootstrap -->
+
 > Vue d'ensemble de l'écosystème : `../AGENTS.md`. Rules et skills : `.agents/`.
 
 Fork maintenu par Sport Up d'un calendrier hebdomadaire pour Ant Design, publié sur le registre GitLab et consommé par `sportup-pro` (agenda et calendrier des complexes). C'est le modèle des librairies UI partagées entre projets web.
