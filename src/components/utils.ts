@@ -221,8 +221,8 @@ export const getHatchedCellBoxes = (
       ({ startTime, endTime }) => startTime < cellEnd && endTime > cellStart
     )
     .map(({ startTime, endTime }) => ({
-      start: toPercent(startTime > cellStart ? startTime : cellStart),
-      end: toPercent(endTime < cellEnd ? endTime : cellEnd),
+      start: Math.max(0, toPercent(startTime)),
+      end: Math.min(FULL_CELL_PERCENT, toPercent(endTime)),
     }))
     .sort((a, b) => a.start - b.start);
 
