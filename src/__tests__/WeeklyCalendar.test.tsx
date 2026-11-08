@@ -80,9 +80,7 @@ describe('WeeklyCalendar', () => {
 
     fireEvent.click(next);
 
-    expect(onSelectDate).toHaveBeenLastCalledWith(
-      addWeeks(mondayStartWeek, 1)
-    );
+    expect(onSelectDate).toHaveBeenLastCalledWith(addWeeks(mondayStartWeek, 1));
     expect(screen.queryByText('Tennis')).not.toBeInTheDocument();
   });
 
@@ -182,13 +180,20 @@ describe('WeeklyCalendar', () => {
   });
 
   it('draws the now indicator only with a color', () => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2024, 7, 20, 10, 30));
     const { rerender } = render(
-      <WeeklyCalendar events={[]} nowIndicatorColor="red" />
+      <WeeklyCalendar
+        events={[]}
+        currentDate={currentDate}
+        nowIndicatorColor="red"
+      />
     );
     expect(screen.getByTestId('now-indicator')).toBeInTheDocument();
 
-    rerender(<WeeklyCalendar events={[]} />);
+    rerender(<WeeklyCalendar events={[]} currentDate={currentDate} />);
     expect(screen.queryByTestId('now-indicator')).not.toBeInTheDocument();
+    vi.useRealTimers();
   });
 
   it('moves the now indicator every minute', () => {
