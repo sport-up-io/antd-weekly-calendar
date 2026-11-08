@@ -116,6 +116,6 @@ sonarqube:check:
 trivy:fs:
   extends: .trivy:fs
   stage: 🔬 Analyse
-  needs: ['node:test']
+  needs: []
   only:
     - main
